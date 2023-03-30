@@ -1,0 +1,31 @@
+{% extends "layout.html" %} {% block title %} Quote {% endblock %} {% block main
+%}
+<form action="/buy" method="post" class="max-w-lg mx-auto my-10">
+  <div class="mb-4">
+    <label for="stock symbol" class="block">Stock Symbol</label>
+    <input
+      autocomplete="off"
+      class="form-input block mx-auto w-full"
+      name="symbol"
+      placeholder="Pick a symbol."
+      type="text"
+    />
+    <label for="number of shares" class="block mt-4">No. of Shares</label>
+    <input
+      autocomplete="off"
+      class="form-input block mx-auto w-full"
+      name="shares"
+      placeholder="0"
+      type="number"
+    />
+  </div>
+  <button
+    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+    type="submit"
+  >
+    BUY
+  </button>
+</form>
+<div class="text-center">{{ cash }}</div>
+
+{% endblock %}

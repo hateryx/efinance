@@ -1,0 +1,41 @@
+{% extends "layout.html" %} {% block title %} List of Users {% endblock %} {%
+block main %}
+<div class="flex justify-center min-h-screen mt-8 ml-5">
+  <div class="bg-white shadow-md rounded-lg overflow-x-auto">
+    <div class="flex justify-center items-center px-6 py-4">
+      <h2 class="text-lg font-semibold text-gray-700">Transaction History</h2>
+    </div>
+
+    <table class="table-auto mx-10 text-xs md:text-sm text-center">
+      <thead>
+        <tr
+          class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal tracking-tighter text-center"
+        >
+          <th class="py-3 px-6">Transaction Date</th>
+          <th class="py-3 px-6">Stock</th>
+          <th class="py-3 px-6">No. of Shares</th>
+          <th class="py-3 px-6">Type</th>
+          <th class="py-3 px-6">Transaction Value</th>
+          <th class="py-3 px-6">
+            <p>Cash</p>
+            <p class="text-xs">Running Balance</p>
+          </th>
+        </tr>
+      </thead>
+      <tbody class="text-gray-600 text-sm font-light">
+        {% for each in cash_history %}
+        <tr class="border-b border-gray-200 hover:bg-gray-100">
+          <td class="py-3 px-6">{{ each.txn_date }}</td>
+          <td class="py-3 px-6">{{ each.stock }}</td>
+          <td class="py-3 px-6">{{ each.no_of_shares }}</td>
+          <td class="py-3 px-6">{{ each.txn_type }}</td>
+          <td class="py-3 px-6">{{ each.amount_change }}</td>
+          <td class="py-3 px-6">{{ each.cash_end_bal }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

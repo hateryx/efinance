@@ -1,0 +1,39 @@
+{% extends "layout.html" %} {% block title %} Quote {% endblock %} {% block main
+%}
+<!-- x -->
+<div class="flex justify-center min-h-screen">
+  <form action="/sell" method="post" class="mx-auto max-w-md">
+    <div class="my-8">
+      <label for="symbol" class="block font-medium text-sm text-gray-700"
+        >Select your stock</label
+      >
+      <select id="symbol" name="symbol" class="form-select mt-1 block w-full">
+        <option value="">--Select your stock-</option>
+        {% for stock in portfolio %}
+        <option value="{{ stock }}">{{ stock }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-4">
+      <label for="shares" class="block font-medium text-sm text-gray-700"
+        >No. of Shares</label
+      >
+      <input
+        autocomplete="off"
+        id="shares"
+        name="shares"
+        type="number"
+        placeholder="100"
+        class="form-input mt-1 block w-full"
+      />
+    </div>
+    <button
+      type="submit"
+      class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-full"
+    >
+      SELL
+    </button>
+  </form>
+</div>
+<!-- x -->
+{% endblock %}

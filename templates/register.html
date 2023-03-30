@@ -1,0 +1,61 @@
+{% extends "layout.html" %} {% block title %} Register {% endblock %} {% block
+main %}
+<form
+  action="/register"
+  method="post"
+  class="max-w-md mx-auto bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 mt-14"
+>
+  <div class="mb-4 mt-8">
+    <label class="block text-gray-700 font-bold mb-2" for="username">
+      Username
+    </label>
+    <input
+      class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+      autocomplete="off"
+      name="username"
+      id="username"
+      type="text"
+      placeholder="What is your username?"
+    />
+  </div>
+  <div class="mb-4">
+    <label class="block text-gray-700 font-bold mb-2" for="password">
+      Password
+    </label>
+    <input
+      class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+      name="password"
+      id="password"
+      type="password"
+      placeholder="Nominate your password."
+    />
+  </div>
+  <div class="mb-6">
+    <label class="block text-gray-700 font-bold mb-2" for="confirmation">
+      Confirm Password
+    </label>
+    <input
+      class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+      name="confirmation"
+      id="confirmation"
+      type="password"
+      placeholder="Confirm your password."
+    />
+  </div>
+  <div class="flex items-center justify-center">
+    <button
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+      type="submit"
+    >
+      Register
+    </button>
+  </div>
+</form>
+
+<div class="grid mt-5">
+  <h4>Hello</h4>
+  <h4>We have a total of {{ all_users }} users!</h4>
+  <h4>{{ rows }}!</h4>
+</div>
+
+{% endblock %}
