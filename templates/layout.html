@@ -71,10 +71,9 @@
     button.addEventListener("click", () => {
       const expanded = button.getAttribute("aria-expanded") === "true" || false;
       button.setAttribute("aria-expanded", !expanded);
-      // menu.classList.toggle("hidden");
       const largeScreenClass = "hidden md:flex md:space-x-8 text-gray-100";
       const smallScreenClass =
-        "absolute mt-20 z-0 inset-0 min-h-screen bg-yellow-300 place-items-center flex flex-col md:space-x-8 text-blue-900 space-y-10 py-20";
+        "transition-all ease-in-out absolute mt-20 z-0 inset-0 min-h-screen bg-yellow-300 place-items-center flex flex-col md:space-x-8 text-blue-900 space-y-10 py-20";
 
       if (!expanded) {
         largeScreenClass

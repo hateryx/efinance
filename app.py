@@ -20,11 +20,13 @@ fin_app = Flask(__name__)
 fin_app.secret_key = "Hello World"
 fin_app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///finance.db'
 fin_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+fin_app.jinja_env.filters['usd'] = usd
 
 db = SQLAlchemy(fin_app)
 
 with fin_app.app_context():
     conn = db.engine.connect()
+
 
 
 class users(db.Model):
@@ -75,6 +77,15 @@ class cash_running_bal(db.Model):
         self.cash_end_bal = cash_end_bal
 
 
+
+@fin_app.after_request
+def after_request(response):
+    """Ensure responses aren't cached"""
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Expires"] = 0
+    response.headers["Pragma"] = "no-cache"
+    return response
+    
 @fin_app.route('/')
 def index():
     try:
@@ -174,7 +185,7 @@ def login():
 
         # Redirect user to home page
 
-        return render_template("portfolio.html")
+        return redirect("/portfolio")
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
@@ -235,6 +246,8 @@ def portfolio():
     # shortlist the stocks held
     stock_portfolio = []
 
+    total_share_value = 0
+
     for each in stock_hash_map_to_list:
         stock_stats = {"stock": "", "no_of_shares": 0,
                        "total_cost": 0, "market_value": 0, "profit_loss": 0}
@@ -254,9 +267,12 @@ def portfolio():
             stock_stats["total_cost"] = pro_rata_cost
             stock_stats["market_value"] = market_price
             stock_stats["profit_loss"] = market_price - pro_rata_cost
+
+            total_share_value += market_price
+
             stock_portfolio.append(stock_stats)
 
-    return render_template("portfolio.html", portfolio=stock_portfolio, cash=current_cash, test=stock_portfolio)
+    return render_template("portfolio.html", portfolio=stock_portfolio, cash=current_cash, test=stock_portfolio,total_share_value=total_share_value)
 
 
 @fin_app.route("/quote", methods=["GET", "POST"])
