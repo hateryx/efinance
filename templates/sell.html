@@ -1,39 +1,71 @@
 {% extends "layout.html" %} {% block title %} Quote {% endblock %} {% block main
 %}
 <!-- x -->
-<div class="flex justify-center min-h-screen">
-  <form action="/sell" method="post" class="mx-auto max-w-md">
-    <div class="my-8">
-      <label for="symbol" class="block font-medium text-sm text-gray-700"
-        >Select your stock</label
-      >
-      <select id="symbol" name="symbol" class="form-select mt-1 block w-full">
-        <option value="">--Select your stock-</option>
-        {% for stock in portfolio %}
-        <option value="{{ stock }}">{{ stock }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="mb-4">
-      <label for="shares" class="block font-medium text-sm text-gray-700"
-        >No. of Shares</label
-      >
-      <input
-        autocomplete="off"
-        id="shares"
-        name="shares"
-        type="number"
-        placeholder="100"
-        class="form-input mt-1 block w-full"
-      />
-    </div>
-    <button
-      type="submit"
-      class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-full"
+<div class="flex flex-col md:flex-row m-6 md:m-10 mt-10">
+  <div class="section md:w-1/5 gap-0 h-8"></div>
+  <div class="section md:w-3/5 gap-0 md:gap-4">
+    <h2 class="text-2xl font-bold mb-4 text-blue-800">Overview</h2>
+    <div
+      class="grid grid-cols-4 border-b-2 border-gray-300 py-2 tracking-tight text-xs md:text-base font-semibold text-center"
     >
-      SELL
-    </button>
-  </form>
+      <h5>Stock Symbol</h5>
+      <h5>No. of Shares</h5>
+      <h5>Current Value</h5>
+      <h5>Profit/Loss</h5>
+    </div>
+    {% for stock in portfolio %}
+    <div class="grid grid-cols-4 py-2 text-xs md:text-base text-center">
+      <div class="font-semibold">{{ stock.stock }}</div>
+      <div class="font-light">{{ stock.no_of_shares }}</div>
+      <div class="font-light">{{ stock.market_value|usd }}</div>
+      <div class="font-semibold">{{ stock.profit_loss|usd }}</div>
+    </div>
+    {% endfor %}
+    <div class="section md:w-1/5 gap-0 h-8"></div>
+    <div class="md:hidden w-full h-8"></div>
+    <div class="flex-row w-full justify-left">
+      <form action="/sell" method="post" class="mx-auto max-w-md">
+        <div class="my-8">
+          <h2 class="text-2xl font-bold mb-4 text-blue-800">Sell</h2>
+          <label for="symbol" class="block font-medium text-sm text-gray-700"
+            >Select your stock</label
+          >
+          <select
+            id="symbol"
+            name="symbol"
+            class="form-select mt-1 block w-full"
+          >
+            <option value="">--Select your stock-</option>
+            {% for each in stock_owned %}
+            <option value={{ each }}>{{ each }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-4">
+          <label for="shares" class="block font-medium text-sm text-gray-700"
+            >No. of Shares</label
+          >
+          <input
+            autocomplete="off"
+            id="shares"
+            name="shares"
+            type="number"
+            placeholder="100"
+            class="form-input mt-1 block w-full"
+          />
+        </div>
+        <button
+          type="submit"
+          class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-full"
+        >
+          SELL
+        </button>
+        <div>{{ test }}</div>
+      </form>
+    </div>
+  </div>
+  <!-- x -->
+
+  <!-- x -->
+  {% endblock %}
 </div>
-<!-- x -->
-{% endblock %}

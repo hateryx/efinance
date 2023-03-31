@@ -29,8 +29,8 @@ block main %}
           <td class="py-3 px-6">{{ each.stock }}</td>
           <td class="py-3 px-6">{{ each.no_of_shares }}</td>
           <td class="py-3 px-6">{{ each.txn_type }}</td>
-          <td class="py-3 px-6">{{ each.amount_change }}</td>
-          <td class="py-3 px-6">{{ each.cash_end_bal }}</td>
+          <td class="py-3 px-6">{{ each.amount_change|usd }}</td>
+          <td class="py-3 px-6">{{ each.cash_end_bal|usd }}</td>
         </tr>
         {% endfor %}
       </tbody>

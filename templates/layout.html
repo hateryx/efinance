@@ -16,13 +16,13 @@
   </head>
   <body>
     <header
-      class="bg-blue-900 py-6 px-8 flex justify-between items-center border-b-2 border-gray-300 z-5"
+      class="bg-blue-900 py-7 px-8 flex justify-between items-center border-b-2 border-gray-300 z-5"
     >
       <a href="/" class="text-xl font-bold text-gray-100"
         >CS50 Stock Trading Simulator</a
       >
 
-      <nav class="md:ml-auto z-10">
+      <nav class="md:ml-auto z-1">
         <div class="flex md:hidden">
           <button
             type="button"
@@ -38,30 +38,51 @@
             </svg>
           </button>
         </div>
-        <ul id="show" class="hidden md:flex md:space-x-8 text-gray-100">
+        <ul id="show" class="hidden md:flex md:space-x-8 font-semibold">
           <!--  -->
           {% if session["user_id"] %}
           <li>
-            <a href="/quote" class="hover:text-gray-200">Quote &amp; Buy</a>
+            <a href="/portfolio" class="text-yellow-400 hover:text-yellow-400"
+              >Portfolio</a
+            >
           </li>
           <li>
-            <a href="/sell" class="hover:text-gray-200">Sell</a>
+            <a href="/quote" class="text-yellow-400 hover:text-yellow-400"
+              >Quote &amp; Buy</a
+            >
           </li>
           <li>
-            <a href="/history" class="hover:text-gray-200">History</a>
+            <a href="/sell" class="text-yellow-400 hover:text-yellow-400"
+              >Sell</a
+            >
           </li>
           <li>
-            <a href="/logout" class="hover:text-gray-200">Log Out</a>
+            <a href="/history" class="text-yellow-400 hover:text-yellow-400"
+              >History</a
+            >
+          </li>
+          <li>
+            <a href="/logout" class="text-yellow-400 hover:text-yellow-400"
+              >Log Out</a
+            >
           </li>
           {% else %}
-          <li><a href="/register" class="hover:text-gray-200">Register</a></li>
-          <li><a href="/login" class="hover:text-gray-200">Log In</a></li>
+          <li>
+            <a href="/register" class="text-yellow-400 hover:text-yellow-400"
+              >Register</a
+            >
+          </li>
+          <li>
+            <a href="/login" class="text-yellow-400 hover:text-yellow-400"
+              >Log In</a
+            >
+          </li>
           {% endif %}
         </ul>
       </nav>
     </header>
 
-    <main class="container mx-auto my-6">{% block main %}{% endblock %}</main>
+    <main class="mx-auto my-6">{% block main %}{% endblock %}</main>
   </body>
   <script>
     const button = document.querySelector('button[aria-label="Toggle menu"]');
@@ -71,10 +92,10 @@
     button.addEventListener("click", () => {
       const expanded = button.getAttribute("aria-expanded") === "true" || false;
       button.setAttribute("aria-expanded", !expanded);
-      // menu.classList.toggle("hidden");
-      const largeScreenClass = "hidden md:flex md:space-x-8 text-gray-100";
+      const largeScreenClass =
+        "hidden md:flex md:space-x-8 font-semibold text-grey-200 hover:text-yellow-500";
       const smallScreenClass =
-        "absolute mt-20 z-0 inset-0 min-h-screen bg-yellow-300 place-items-center flex flex-col md:space-x-8 text-blue-900 space-y-10 py-20";
+        "transition-all ease-in-out absolute mt-20 z-0 inset-0 min-h-screen bg-yellow-300 place-items-center flex flex-col md:space-x-8 text-blue-900 space-y-10 py-20";
 
       if (!expanded) {
         largeScreenClass

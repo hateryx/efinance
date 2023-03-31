@@ -20,6 +20,7 @@ fin_app = Flask(__name__)
 fin_app.secret_key = "Hello World"
 fin_app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///finance.db'
 fin_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+fin_app.jinja_env.filters['usd'] = usd
 
 db = SQLAlchemy(fin_app)
 
@@ -73,6 +74,84 @@ class cash_running_bal(db.Model):
         self.txn_date = txn_date
         self.amount_change = amount_change
         self.cash_end_bal = cash_end_bal
+
+
+def inquire_latest_cash(current_user):
+    cash_query = text(
+        "SELECT cash_end_bal FROM cash_running_bal WHERE user_id = :user_id AND c_bal_id = (SELECT MAX(c_bal_id) FROM cash_running_bal WHERE user_id = :user_id)")
+
+    cash_latest_bal = db.session.execute(
+        cash_query, {'user_id': current_user}).fetchone()
+
+    current_cash = int(cash_latest_bal[0])
+
+    return current_cash
+
+
+def inquire_portfolio(current_user):
+    query_stock = db.session.query(stock_txn.stock, stock_txn.txn_type, stock_txn.no_of_shares, stock_txn.total_cost)\
+        .filter(stock_txn.user_id == current_user)\
+        .all()
+
+    stock_hash_map = {}
+    cost_hash_map = {}
+    buy_hash_map = {}
+
+    for row in query_stock:
+        stock, txn_type, no_of_shares, total_cost = row
+        if stock not in stock_hash_map:
+            stock_hash_map[stock] = 0
+            cost_hash_map[stock] = 0
+            buy_hash_map[stock] = 0
+        if txn_type == "buy":
+            stock_hash_map[stock] += no_of_shares
+            cost_hash_map[stock] += total_cost
+            buy_hash_map[stock] += no_of_shares
+        else:
+            stock_hash_map[stock] -= no_of_shares
+
+    stock_hash_map_to_list = [{'symbol': key, 'no_of_shares_now_held': value}
+                              for key, value in stock_hash_map.items()]
+
+    # shortlist the stocks held
+    stock_portfolio = []
+
+    total_share_value = 0
+
+    for each in stock_hash_map_to_list:
+        stock_stats = {"stock": "", "no_of_shares": 0,
+                       "total_cost": 0, "market_value": 0, "profit_loss": 0}
+
+        if each['no_of_shares_now_held'] > 0:
+            total_stock_cost = cost_hash_map[each["symbol"]]
+            total_no_of_buy = buy_hash_map[each["symbol"]]
+            pro_rata_cost = total_stock_cost * \
+                each["no_of_shares_now_held"] / total_no_of_buy
+
+            market_details = lookup(each["symbol"])
+            market_price = each["no_of_shares_now_held"] * \
+                int(market_details["price"])
+
+            stock_stats["stock"] = each["symbol"]
+            stock_stats["no_of_shares"] = each["no_of_shares_now_held"]
+            stock_stats["total_cost"] = pro_rata_cost
+            stock_stats["market_value"] = market_price
+            stock_stats["profit_loss"] = market_price - pro_rata_cost
+
+            total_share_value += market_price
+
+            stock_portfolio.append(stock_stats)
+
+    return stock_portfolio
+
+
+@fin_app.after_request
+def after_request(response):
+    """Ensure responses aren't cached"""
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Expires"] = 0
+    response.headers["Pragma"] = "no-cache"
+    return response
 
 
 @fin_app.route('/')
@@ -174,7 +253,7 @@ def login():
 
         # Redirect user to home page
 
-        return render_template("portfolio.html")
+        return redirect("/portfolio")
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
@@ -198,65 +277,19 @@ def portfolio():
 
     current_user = session["user_id"]
 
-    cash_query = text(
-        "SELECT cash_end_bal FROM cash_running_bal WHERE user_id = :user_id AND c_bal_id = (SELECT MAX(c_bal_id) FROM cash_running_bal WHERE user_id = :user_id)")
+    current_cash = inquire_latest_cash(current_user)
 
-    cash_latest_bal = db.session.execute(
-        cash_query, {'user_id': current_user}).fetchone() or [10000]
+    try:
+        stock_portfolio = inquire_portfolio(current_user)
+        total_share_value = 0
 
-    current_cash = int(cash_latest_bal[0])
+        for each in stock_portfolio:
+            total_share_value += each["market_value"]
 
-    query_stock = db.session.query(stock_txn.stock, stock_txn.txn_type, stock_txn.no_of_shares, stock_txn.total_cost)\
-        .filter(stock_txn.user_id == current_user)\
-        .all()
+    except Exception:
+        return apology("Either the API key is not valid or the API service provider is having issues.")
 
-    stock_hash_map = {}
-    cost_hash_map = {}
-    buy_hash_map = {}
-
-    for row in query_stock:
-        stock, txn_type, no_of_shares, total_cost = row
-        if stock not in stock_hash_map:
-            stock_hash_map[stock] = 0
-            cost_hash_map[stock] = 0
-            buy_hash_map[stock] = 0
-        if txn_type == "buy":
-            stock_hash_map[stock] += no_of_shares
-            cost_hash_map[stock] += total_cost
-            buy_hash_map[stock] += no_of_shares
-        else:
-            stock_hash_map[stock] -= no_of_shares
-
-    stock_hash_map_to_list = [{'symbol': key, 'no_of_shares_now_held': value}
-                              for key, value in stock_hash_map.items()]
-    # cost_hash_map_to_list = [{'symbol': key, 'total_cost': value}
-    #                          for key, value in cost_hash_map.items()]
-
-    # shortlist the stocks held
-    stock_portfolio = []
-
-    for each in stock_hash_map_to_list:
-        stock_stats = {"stock": "", "no_of_shares": 0,
-                       "total_cost": 0, "market_value": 0, "profit_loss": 0}
-
-        if each['no_of_shares_now_held'] > 0:
-            total_stock_cost = cost_hash_map[each["symbol"]]
-            total_no_of_buy = buy_hash_map[each["symbol"]]
-            pro_rata_cost = total_stock_cost * \
-                each["no_of_shares_now_held"] / total_no_of_buy
-
-            market_details = lookup(each["symbol"])
-            market_price = each["no_of_shares_now_held"] * \
-                int(market_details["price"])
-
-            stock_stats["stock"] = each["symbol"]
-            stock_stats["no_of_shares"] = each["no_of_shares_now_held"]
-            stock_stats["total_cost"] = pro_rata_cost
-            stock_stats["market_value"] = market_price
-            stock_stats["profit_loss"] = market_price - pro_rata_cost
-            stock_portfolio.append(stock_stats)
-
-    return render_template("portfolio.html", portfolio=stock_portfolio, cash=current_cash, test=stock_portfolio)
+    return render_template("portfolio.html", portfolio=stock_portfolio, cash=current_cash, total_share_value=total_share_value)
 
 
 @fin_app.route("/quote", methods=["GET", "POST"])
@@ -266,13 +299,7 @@ def quote():
 
     current_user = session["user_id"]
 
-    cash_query = text(
-        "SELECT cash_end_bal FROM cash_running_bal WHERE user_id = :user_id AND c_bal_id = (SELECT MAX(c_bal_id) FROM cash_running_bal WHERE user_id = :user_id)")
-
-    cash_latest_bal = db.session.execute(
-        cash_query, {'user_id': current_user}).fetchone() or [10000]
-
-    current_cash = int(cash_latest_bal[0])
+    current_cash = inquire_latest_cash(current_user)
 
     if request.method == "POST":
         symbol = request.form.get("symbol")
@@ -297,6 +324,8 @@ def buy():
 
     current_user = session["user_id"]
 
+    current_cash = inquire_latest_cash(current_user)
+
     if request.method == "POST":
         buying_stock = request.form.get("symbol")
         no_of_shares = request.form.get("shares")
@@ -315,18 +344,6 @@ def buy():
             return apology("The specified number of shares you inputted is invalid.")
 
         cost_of_shares = stock_details["price"] * no_of_shares
-
-        # cash_dict = db.session.execute(text(
-        #     "SELECT cash FROM users WHERE id = :current_user"), {'current_user': current_user}).fetchall()
-        # current_cash = cash_dict[0].cash
-
-        cash_query = text(
-            "SELECT cash_end_bal FROM cash_running_bal WHERE user_id = :user_id AND c_bal_id = (SELECT MAX(c_bal_id) FROM cash_running_bal WHERE user_id = :user_id)")
-
-        cash_latest_bal = db.session.execute(
-            cash_query, {'user_id': current_user}).fetchone()
-
-        current_cash = int(cash_latest_bal[0])
 
         current_datetime = datetime.datetime.now()
         txn_date = current_datetime.strftime('%m/%d/%Y %H:%M:%S')
@@ -364,14 +381,6 @@ def buy():
         return redirect("/")
 
     else:
-        cash_query = text(
-            "SELECT cash_end_bal FROM cash_running_bal WHERE user_id = :user_id AND c_bal_id = (SELECT MAX(c_bal_id) FROM cash_running_bal WHERE user_id = :user_id)")
-
-        cash_latest_bal = db.session.execute(
-            cash_query, {'user_id': current_user}).fetchone()
-
-        current_cash = int(cash_latest_bal[0])
-
         return render_template("buy.html", cash=current_cash)
 
 
@@ -398,39 +407,48 @@ def sell():
     """Sell shares of stock"""
     current_user = session["user_id"]
 
-    stock_holdings = []
+    current_cash = inquire_latest_cash(current_user)
 
-    query_stock = db.session.query(stock_txn.stock, stock_txn.txn_type, stock_txn.no_of_shares, stock_txn.total_cost)\
-        .filter(stock_txn.user_id == current_user)\
-        .all()
+    stock_holdings = inquire_portfolio(current_user)
 
-    for stock, txn_type, no_of_shares, total_cost in query_stock:
-        if stock not in stock_holdings:
-            stock_holdings.append(stock)
+    stock_owned = []
+
+    for i in range(0, len(stock_holdings)):
+        stock_owned.append(stock_holdings[i]["stock"])
 
     stock_hash_map = {}
-    for row in query_stock:
-        stock, txn_type, no_of_shares, total_cost = row
-        if stock not in stock_hash_map:
-            stock_hash_map[stock] = 0
-        if txn_type == "buy":
-            stock_hash_map[stock] += no_of_shares
-        else:
-            stock_hash_map[stock] -= no_of_shares
 
-    cash_query = text(
-        "SELECT cash_end_bal FROM cash_running_bal WHERE user_id = :user_id AND c_bal_id = (SELECT MAX(c_bal_id) FROM cash_running_bal WHERE user_id = :user_id)")
+    for each in stock_holdings:
+        key = each['stock']
+        stock_hash_map[key] = 0
+        stock_hash_map[key] += each['no_of_shares']
 
-    cash_latest_bal = db.session.execute(
-        cash_query, {'user_id': current_user}).fetchone()
+    # test = stock_owned_hash_map['AMZN']
 
-    current_cash = int(cash_latest_bal[0])
+    # query_stock = db.session.query(stock_txn.stock, stock_txn.txn_type, stock_txn.no_of_shares, stock_txn.total_cost)\
+    #     .filter(stock_txn.user_id == current_user)\
+    #     .all()
+
+    # for stock, txn_type, no_of_shares, total_cost in query_stock:
+    #     if stock not in stock_holdings:
+    #         stock_holdings.append(stock)
+
+    # stock_hash_map = {}
+    # for row in query_stock:
+    #     stock, txn_type, no_of_shares, total_cost = row
+    #     if stock not in stock_hash_map:
+    #         stock_hash_map[stock] = 0
+    #     if txn_type == "buy":
+    #         stock_hash_map[stock] += no_of_shares
+    #     else:
+    #         stock_hash_map[stock] -= no_of_shares
 
     if request.method == "POST":
+        # sell_symbol =
         sell_symbol = request.form.get("symbol")
         shares_to_sell = request.form.get("shares")
 
-        if not sell_symbol or sell_symbol not in stock_holdings:
+        if not sell_symbol or sell_symbol not in stock_owned:
             return apology("You cannot sell a stock that you do not own!")
 
         if int(shares_to_sell) <= 0 or int(shares_to_sell) % 1 != 0 or not shares_to_sell:
@@ -480,20 +498,10 @@ def sell():
 
         db.session.commit()
 
-        # updated_query = text(
-        #     "SELECT stock, txn_type, no_of_shares, total_cost FROM stock_txn where user_id = :user_id")
-
-        # db.session.execute(updated_query, {'user_id': current_user}).fetchall()
-
-        # for each in updated_query:
-        #     if each["txn_type"] == "buy":
-        #         current_cash -= each["total_cost"]
-        #     else:
-        #         current_cash += each["total_cost"]
-
-        return render_template("sell_output.html", sell_stock=sell_symbol, sold_shares=shares_to_sell, sale_proceeds=sale_proceeds, current_cash=updated_cash)
+        return redirect("/portfolio")
     else:
-        return render_template("sell.html", portfolio=stock_holdings)
+
+        return render_template("sell.html", portfolio=stock_holdings, stock_owned=stock_owned)
 
 
 conn.close()
