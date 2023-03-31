@@ -332,10 +332,6 @@ def buy():
 
         cost_of_shares = stock_details["price"] * no_of_shares
 
-        # cash_dict = db.session.execute(text(
-        #     "SELECT cash FROM users WHERE id = :current_user"), {'current_user': current_user}).fetchall()
-        # current_cash = cash_dict[0].cash
-
         cash_query = text(
             "SELECT cash_end_bal FROM cash_running_bal WHERE user_id = :user_id AND c_bal_id = (SELECT MAX(c_bal_id) FROM cash_running_bal WHERE user_id = :user_id)")
 

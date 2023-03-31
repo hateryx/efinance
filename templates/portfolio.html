@@ -2,7 +2,7 @@
 block main %}
 <div class="flex flex-col md:flex-row m-8 md:m-10 mt-10">
   <!-- Portfolio section -->
-  <div class="section md:w-1/3">
+  <div class="section md:w-1/3 gap-0 md:gap-4">
     <h2 class="text-2xl font-bold mb-4 text-blue-800">Portfolio</h2>
     <div
       class="grid grid-cols-5 border-b-2 border-gray-300 py-2 tracking-tight text-sm md:text-base font-semibold"
@@ -25,19 +25,19 @@ block main %}
     <div class="finstats border-t-2 border-gray-300 pt-4 text-sm md:text-base">
       <div class="grid grid-cols-2 py-2">
         <div class="font-semibold">Total Share Market Value</div>
-        <div class="font-light">{{ total_share_value|usd }}</div>
+        <div class="font-light ml-4">{{ total_share_value|usd }}</div>
       </div>
       <div class="grid grid-cols-2 py-2">
         <div class="font-semibold">Remaining Cash</div>
-        <div class="font-light">{{ cash|usd }}</div>
+        <div class="font-light ml-4">{{ cash|usd }}</div>
       </div>
       <div class="grid grid-cols-2 py-2">
         <div class="font-semibold">Total Equity</div>
-        <div class="font-light">{{ (cash + total_share_value)|usd }}</div>
+        <div class="font-light ml-4">{{ (cash + total_share_value)|usd }}</div>
       </div>
       <div class="grid grid-cols-2 py-2">
         <div class="font-semibold">Net Gain/Loss</div>
-        <div class="font-light">{{ (cash + total_share_value - 10000)|usd }}</div>
+        <div class="font-light ml-4">{{ (cash + total_share_value - 10000)|usd }}</div>
       </div>
     </div>
   </div>
