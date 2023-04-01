@@ -156,6 +156,15 @@ def after_request(response):
     return response
 
 
+@fin_app.after_request
+def after_request(response):
+    """Ensure responses aren't cached"""
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Expires"] = 0
+    response.headers["Pragma"] = "no-cache"
+    return response
+
+
 @fin_app.route('/')
 def index():
     try:
@@ -348,6 +357,18 @@ def buy():
             return apology("The specified number of shares you inputted is invalid.")
 
         cost_of_shares = stock_details["price"] * no_of_shares
+
+        # cash_dict = db.session.execute(text(
+        #     "SELECT cash FROM users WHERE id = :current_user"), {'current_user': current_user}).fetchall()
+        # current_cash = cash_dict[0].cash
+
+        cash_query = text(
+            "SELECT cash_end_bal FROM cash_running_bal WHERE user_id = :user_id AND c_bal_id = (SELECT MAX(c_bal_id) FROM cash_running_bal WHERE user_id = :user_id)")
+
+        cash_latest_bal = db.session.execute(
+            cash_query, {'user_id': current_user}).fetchone()
+
+        current_cash = int(cash_latest_bal[0])
 
         current_datetime = datetime.datetime.now()
         txn_date = current_datetime.strftime('%m/%d/%Y %H:%M:%S')
