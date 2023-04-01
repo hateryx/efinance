@@ -2,11 +2,11 @@
 %}
 <!-- x -->
 <div class="flex flex-col md:flex-row m-6 md:m-10 mt-10">
-  <div class="section md:w-1/5 gap-0 h-8"></div>
-  <div class="section md:w-3/5 gap-0 md:gap-4">
-    <h2 class="text-2xl font-bold mb-4 text-blue-800">Overview</h2>
+  <div class="section md:w-1/5 gap-0 h-0 md:h-8"></div>
+  <div class="section md:w-3/5 gap-0 md:gap-4 border shadow-lg rounded-lg">
+    <h2 class="text-xl md:text-2xl font-bold py-2 text-blue-800 text-center pt-4 md:py-5">Dashboard</h2>
     <div
-      class="grid grid-cols-4 border-b-2 border-gray-300 py-2 tracking-tight text-xs md:text-base font-semibold text-center"
+      class="grid grid-cols-4 border-t-2 border-b-2 border-blue-400 tracking-tight text-xs md:text-base font-semibold text-center"
     >
       <h5>Stock Symbol</h5>
       <h5>No. of Shares</h5>
@@ -18,31 +18,45 @@
       <div class="font-semibold">{{ stock.stock }}</div>
       <div class="font-light">{{ stock.no_of_shares }}</div>
       <div class="font-light">{{ stock.market_value|usd }}</div>
-      <div class="font-semibold">{{ stock.profit_loss|usd }}</div>
+      <div class="font-semibold">
+        {% if stock.profit_loss < 0 %}
+          <p class="text-red-700">{{ stock.profit_loss|usd }}</p>
+        {% else %}
+          <p class="text-green-700">{{ stock.profit_loss|usd }}</p>
+        {% endif %}
+      </div>
     </div>
     {% endfor %}
     <div class="section md:w-1/5 gap-0 h-8"></div>
     <div class="md:hidden w-full h-8"></div>
-    <div class="flex-row w-full justify-left">
-      <form action="/sell" method="post" class="mx-auto max-w-md">
-        <div class="my-8">
-          <h2 class="text-2xl font-bold mb-4 text-blue-800">Sell</h2>
-          <label for="symbol" class="block font-medium text-sm text-gray-700"
-            >Select your stock</label
+    <div class="flex-row w-full justify-left mt-4 md:mt-10">
+      <form action="/sell" method="post" class="mx-auto max-w-md border shadow-md rounded-lg mb-10">
+        <h2
+          class="text-sm md:text-lg font-semibold text-white bg-blue-800 px-4 py-2 rounded-t-md"
+        >
+          Thinking of Selling?
+        </h2>
+        <div class="flex">
+          <label
+            for="symbol"
+            class="font-medium text-sm bg-yellow-400 text-blue-800 border px-4 py-2 w-1/2"
+            >Pick your stock</label
           >
           <select
             id="symbol"
             name="symbol"
-            class="form-select mt-1 block w-full"
+            class="form-select text-sm bg-blue-200 px-4 py-2 w-1/2 text-center tracking-wider"
           >
-            <option value="">--Select your stock-</option>
+            <option value="">--Select--</option>
             {% for each in stock_owned %}
             <option value={{ each }}>{{ each }}</option>
             {% endfor %}
           </select>
         </div>
-        <div class="mb-4">
-          <label for="shares" class="block font-medium text-sm text-gray-700"
+        <div class="flex">
+          <label
+            for="shares"
+            class="font-medium text-sm bg-yellow-400 text-blue-800 border px-4 py-2 w-1/2"
             >No. of Shares</label
           >
           <input
@@ -50,17 +64,17 @@
             id="shares"
             name="shares"
             type="number"
-            placeholder="100"
-            class="form-input mt-1 block w-full"
+            class="form-input border px-4 py-2 w-1/2 text-center tracking-wider"
           />
         </div>
-        <button
-          type="submit"
-          class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-full"
-        >
-          SELL
-        </button>
-        <div>{{ test }}</div>
+        <div class="flex justify-center">
+          <button
+            type="submit"
+            class="bg-yellow-400 text-blue-800 border-2 border-blue-800 font-semibold py-2 px-4 rounded-full w-3/5 md:w-2/5 my-4"
+          >
+            SELL
+          </button>
+        </div>
       </form>
     </div>
   </div>

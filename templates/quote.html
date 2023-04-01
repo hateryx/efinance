@@ -9,13 +9,13 @@
 <form action="/quote" method="post" class="max-w-lg mx-auto my-10">
     <div class="flex mb-3 mx-4">
       <input autocomplete="off" class="appearance-none rounded-l-md py-2 px-3  border-gray-300 rounded-md text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-4/5" name="symbol" placeholder="Pick a stock symbol." type="text">
-      <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r-md focus:outline-none focus:shadow-outline" type="submit">
+      <button class="bg-blue-800 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-r-md focus:outline-none focus:shadow-outline" type="submit">
         Quote
       </button>
     </div>
   </form>
   {% if symbol %}
-  <div class="max-w-lg mx-auto">
+  <div class="max-w-lg mx-auto text-sm md:text-base">
     <div class="grid grid-cols-3 bg-yellow-300 border-t border-l border-r rounded-t-md mx-4">
       <div class="py-2 px-4 font-bold text-gray-700">Symbol</div>
       <div class="py-2 px-4 font-bold text-gray-700">Company</div>

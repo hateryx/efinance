@@ -19,7 +19,13 @@
       <div class="font-light">{{ stock.no_of_shares }}</div>
       <div class="font-light">{{ stock.total_cost|usd }}</div>
       <div class="font-light">{{ stock.market_value|usd }}</div>
-      <div class="font-light">{{ stock.profit_loss|usd }}</div>
+      <div class="font-light font-semibold">
+        {% if stock.profit_loss < 0 %}
+          <p class="text-red-700">{{ stock.profit_loss|usd }}</p>
+        {% else %}
+          <p class="text-green-700">{{ stock.profit_loss|usd }}</p>
+        {% endif %}
+      </div>
     </div>
     {% endfor %}
     <div class="finstats border-t-2 border-gray-300 pt-4 text-sm md:text-base">

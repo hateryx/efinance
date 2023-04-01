@@ -38,42 +38,42 @@
             </svg>
           </button>
         </div>
-        <ul id="show" class="hidden md:flex md:space-x-8 font-semibold">
+        <ul id="show" class="hidden md:flex md:space-x-8 text-white font-semibold text-lg tracking-widest">
           <!--  -->
           {% if session["user_id"] %}
           <li>
-            <a href="/portfolio" class="text-yellow-400 hover:text-yellow-400"
+            <a href="/portfolio" class="hover:text-yellow-400"
               >Portfolio</a
             >
           </li>
           <li>
-            <a href="/quote" class="text-yellow-400 hover:text-yellow-400"
+            <a href="/quote" class="hover:text-yellow-400"
               >Quote &amp; Buy</a
             >
           </li>
           <li>
-            <a href="/sell" class="text-yellow-400 hover:text-yellow-400"
+            <a href="/sell" class="hover:text-yellow-400"
               >Sell</a
             >
           </li>
           <li>
-            <a href="/history" class="text-yellow-400 hover:text-yellow-400"
+            <a href="/history" class="hover:text-yellow-400"
               >History</a
             >
           </li>
           <li>
-            <a href="/logout" class="text-yellow-400 hover:text-yellow-400"
+            <a href="/logout" class="hover:text-yellow-400"
               >Log Out</a
             >
           </li>
           {% else %}
           <li>
-            <a href="/register" class="text-yellow-400 hover:text-yellow-400"
+            <a href="/register" class="hover:text-yellow-400"
               >Register</a
             >
           </li>
           <li>
-            <a href="/login" class="text-yellow-400 hover:text-yellow-400"
+            <a href="/login" class="hover:text-yellow-400"
               >Log In</a
             >
           </li>
