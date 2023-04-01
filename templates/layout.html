@@ -8,20 +8,28 @@
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css"
       rel="stylesheet"
     />
+    <link
+      href="/static/css/exp.css"
+      rel="stylesheet"
+    />
 
     <!-- <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" rel="stylesheet">
     <script crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"></script> -->
 
-    <title>C$50 Finance: {% block title %}{% endblock %}</title>
+    <title>Trade: {% block title %}{% endblock %}</title>
   </head>
   <body>
     <header
       class="bg-blue-900 py-7 px-8 flex justify-between items-center border-b-2 border-gray-300 z-5"
     >
-      <a href="/" class="text-xl font-bold text-gray-100"
-        >CS50 Stock Trading Simulator</a
-      >
-
+      <div>
+        <a
+          href="/"
+          class="text-xl md:text-3xl font-bold text-yellow-400 tracking-widest"
+          >Investopia!</a
+        >
+        <p class="text-xs md:text-sm text-gray-100">A Stock Novice Quest</p>
+      </div>
       <nav class="md:ml-auto z-1">
         <div class="flex md:hidden">
           <button
@@ -30,52 +38,61 @@
             aria-label="Toggle menu"
             aria-expanded="false"
           >
-            <svg viewBox="0 0 24 24" class="h-6 w-6 fill-current">
+            <svg
+              viewBox="0 0 24 24"
+              id="menu-opener"
+              class="h-6 w-6 fill-current"
+            >
               <path
                 fill-rule="evenodd"
                 d="M4 6h16v2H4zm0 5h16v2H4zm16 4H4v2h16z"
               />
             </svg>
+            <svg
+              id="menu-closer"
+              class="w-6 h-6 hidden"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="white"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
           </button>
+          <button type="button"></button>
         </div>
-        <ul id="show" class="hidden md:flex md:space-x-8 text-white font-semibold text-lg tracking-widest">
+        <ul
+          id="show"
+          class="hidden md:flex md:space-x-8 text-white font-semibold text-lg tracking-widest"
+        >
           <!--  -->
           {% if session["user_id"] %}
           <li>
-            <a href="/portfolio" class="hover:text-yellow-400"
-              >Portfolio</a
-            >
+            <a href="/portfolio" class="hover:text-yellow-400">Portfolio</a>
           </li>
           <li>
-            <a href="/quote" class="hover:text-yellow-400"
-              >Quote &amp; Buy</a
-            >
+            <a href="/quote" class="hover:text-yellow-400">Quote &amp; Buy</a>
           </li>
           <li>
-            <a href="/sell" class="hover:text-yellow-400"
-              >Sell</a
-            >
+            <a href="/sell" class="hover:text-yellow-400">Sell</a>
           </li>
           <li>
-            <a href="/history" class="hover:text-yellow-400"
-              >History</a
-            >
+            <a href="/history" class="hover:text-yellow-400">History</a>
           </li>
           <li>
-            <a href="/logout" class="hover:text-yellow-400"
-              >Log Out</a
-            >
+            <a href="/logout" class="hover:text-red-400">Log Out</a>
           </li>
           {% else %}
           <li>
-            <a href="/register" class="hover:text-yellow-400"
-              >Register</a
-            >
+            <a href="/register" class="hover:text-yellow-400">Register</a>
           </li>
           <li>
-            <a href="/login" class="hover:text-yellow-400"
-              >Log In</a
-            >
+            <a href="/login" class="hover:text-yellow-400">Log In</a>
           </li>
           {% endif %}
         </ul>
@@ -92,17 +109,39 @@
     button.addEventListener("click", () => {
       const expanded = button.getAttribute("aria-expanded") === "true" || false;
       button.setAttribute("aria-expanded", !expanded);
+
+      const menu_open_icon = document.getElementById("menu-opener");
+      const menu_close_icon = document.getElementById("menu-closer");
+
       const largeScreenClass =
-        "hidden md:flex md:space-x-8 font-semibold text-grey-200 hover:text-yellow-500";
+        "hidden md:flex md:space-x-8 font-semibold text-grey-200 hover:text-blue-800";
       const smallScreenClass =
-        "transition-all ease-in-out absolute mt-20 z-0 inset-0 min-h-screen bg-yellow-300 place-items-center flex flex-col md:space-x-8 text-blue-900 space-y-10 py-20";
+        "absolute mt-24 border-t-2 z-0 inset-0 min-h-screen bg-yellow-300 place-items-center flex flex-col md:space-x-8 text-blue-900 space-y-10 py-20";
 
       if (!expanded) {
+        menu_open_icon.classList.add("hidden");
+        menu_close_icon.classList.remove("hidden");
+
+        show.classList.remove("animate-fade-out");
+        show.classList.add("animate-fade-in");
+        setTimeout(() => {
+          show.classList.remove("animate-fade-in");
+        }, 500);
+
         largeScreenClass
           .split(" ")
           .forEach((item) => show.classList.remove(item));
         smallScreenClass.split(" ").forEach((item) => show.classList.add(item));
       } else {
+        menu_open_icon.classList.remove("hidden");
+        menu_close_icon.classList.add("hidden");
+
+        show.classList.remove("animate-fade-in");
+        show.classList.add("animate-fade-out");
+        setTimeout(() => {
+          show.classList.remove("animate-fade-out");
+        }, 500);
+
         smallScreenClass
           .split(" ")
           .forEach((item) => show.classList.remove(item));

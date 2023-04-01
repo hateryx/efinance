@@ -11,12 +11,21 @@ block main %}
         <tr
           class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal tracking-tighter text-center"
         >
-          <th class="py-3 px-6">Transaction Date</th>
-          <th class="py-3 px-6">Stock</th>
-          <th class="py-3 px-6">No. of Shares</th>
-          <th class="py-3 px-6">Type</th>
-          <th class="py-3 px-6">Transaction Value</th>
-          <th class="py-3 px-6">
+          <th class="py-3 px-6 text-xs">
+            <p>Transaction</p>
+            <p>Date</p>
+          </th>
+          <th class="py-3 px-3">Stock</th>
+          <th class="py-3 px-6 text-xs">
+            <p>No. of</p>
+            <p>Shares</p>
+          </th>
+          <th class="py-3 px-3">Type</th>
+          <th class="py-3 px-6 text-xs">
+            <p>Transaction</p>
+            <p>Value</p>
+          </th>
+          <th class="py-3 px-2">
             <p>Cash</p>
             <p class="text-xs">Running Balance</p>
           </th>
@@ -25,12 +34,22 @@ block main %}
       <tbody class="text-gray-600 text-sm font-light">
         {% for each in cash_history %}
         <tr class="border-b border-gray-200 hover:bg-gray-100">
-          <td class="py-3 px-6">{{ each.txn_date }}</td>
-          <td class="py-3 px-6">{{ each.stock }}</td>
+          <td class="py-3 px-6 text-xs">{{ each.txn_date }}</td>
+          <td class="py-3 px-3">{{ each.stock }}</td>
           <td class="py-3 px-6">{{ each.no_of_shares }}</td>
-          <td class="py-3 px-6">{{ each.txn_type }}</td>
-          <td class="py-3 px-6">{{ each.amount_change|usd }}</td>
-          <td class="py-3 px-6">{{ each.cash_end_bal|usd }}</td>
+          <td class="py-3 px-3">
+            {{ each.txn_type }}
+            <!-- <td class="py-3 px-6">{{ each.amount_change|usd }}</td> -->
+          </td>
+
+          <td class="py-3 px-6">
+            {% if each.amount_change < 0 %}
+            <p class="text-red-700">{{ each.amount_change|usd }}</p>
+            {% else %}
+            <p class="text-green-700">{{ each.amount_change|usd }}</p>
+            {% endif %}
+          </td>
+          <td class="py-3 px-2">{{ each.cash_end_bal|usd }}</td>
         </tr>
         {% endfor %}
       </tbody>
