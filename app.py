@@ -10,7 +10,7 @@ from sqlalchemy import text, func, cast, Integer
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, login_required, lookup, usd
+from helpers import apology, login_required, lookup, usd, percent, top_performing_stocks
 
 from dotenv import load_dotenv
 
@@ -20,7 +20,9 @@ fin_app = Flask(__name__)
 fin_app.secret_key = "Hello World"
 fin_app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///finance.db'
 fin_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 fin_app.jinja_env.filters['usd'] = usd
+fin_app.jinja_env.filters['percent'] = percent
 
 db = SQLAlchemy(fin_app)
 
@@ -314,7 +316,9 @@ def quote():
         return render_template("quote.html", symbol=symbol, company=company, price=price, current_cash=current_cash)
 
     else:
-        return render_template("quote.html")
+        stock_reco = top_performing_stocks()
+
+        return render_template("quote.html", stock_reco=stock_reco, test=stock_reco)
 
 
 @fin_app.route("/buy", methods=["GET", "POST"])
@@ -423,28 +427,7 @@ def sell():
         stock_hash_map[key] = 0
         stock_hash_map[key] += each['no_of_shares']
 
-    # test = stock_owned_hash_map['AMZN']
-
-    # query_stock = db.session.query(stock_txn.stock, stock_txn.txn_type, stock_txn.no_of_shares, stock_txn.total_cost)\
-    #     .filter(stock_txn.user_id == current_user)\
-    #     .all()
-
-    # for stock, txn_type, no_of_shares, total_cost in query_stock:
-    #     if stock not in stock_holdings:
-    #         stock_holdings.append(stock)
-
-    # stock_hash_map = {}
-    # for row in query_stock:
-    #     stock, txn_type, no_of_shares, total_cost = row
-    #     if stock not in stock_hash_map:
-    #         stock_hash_map[stock] = 0
-    #     if txn_type == "buy":
-    #         stock_hash_map[stock] += no_of_shares
-    #     else:
-    #         stock_hash_map[stock] -= no_of_shares
-
     if request.method == "POST":
-        # sell_symbol =
         sell_symbol = request.form.get("symbol")
         shares_to_sell = request.form.get("shares")
 

@@ -64,3 +64,28 @@ def lookup(symbol):
 def usd(value):
     """Format value as USD."""
     return f"${value:,.2f}"
+
+
+def percent(value):
+    """Format value as percentage."""
+    return '{:.2%}'.format(value)
+
+
+def top_performing_stocks():
+
+    # Contact API
+    try:
+        api_key = os.getenv("API_KEY")
+        url = f'https://cloud.iexapis.com/stable/stock/market/list/mostactive?token={api_key}'
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            # retrieve the top 10 performing stocks
+            stocks = response.json()[:10]
+            return stocks
+        else:
+            return 'Error retrieving data from IEX Cloud'
+
+        response.raise_for_status()
+    except requests.RequestException:
+        return 'Error retrieving data from IEX Cloud'

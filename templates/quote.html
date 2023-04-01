@@ -5,53 +5,76 @@
 {% endblock %}
 
 {% block main %}
-<div class="mx-5 min-h-screen">
-<form action="/quote" method="post" class="max-w-lg mx-auto my-10">
-    <div class="flex mb-3 mx-4">
-      <input autocomplete="off" class="appearance-none rounded-l-md py-2 px-3  border-gray-300 rounded-md text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-4/5" name="symbol" placeholder="Pick a stock symbol." type="text">
-      <button class="bg-blue-800 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-r-md focus:outline-none focus:shadow-outline" type="submit">
-        Quote
-      </button>
-    </div>
-  </form>
-  {% if symbol %}
-  <div class="max-w-lg mx-auto text-sm md:text-base">
-    <div class="grid grid-cols-3 bg-yellow-300 border-t border-l border-r rounded-t-md mx-4">
-      <div class="py-2 px-4 font-bold text-gray-700">Symbol</div>
-      <div class="py-2 px-4 font-bold text-gray-700">Company</div>
-      <div class="py-2 px-4 font-bold text-gray-700">Price</div>
-    </div>
-    <div class="grid grid-cols-3 bg-white border border-gray-200 rounded-b-md mx-4">
-      <div class="py-2 px-4 text-gray-700">{{ symbol }}</div>
-      <div class="py-2 px-4 text-gray-700">{{ company }}</div>
-      <div class="py-2 px-4 text-gray-700">{{ price }}</div>
-    </div>
-  </div>
- 
-  <form action="/buy" method="post" class="max-w-lg mx-auto my-5 bg-white  p-4">
-    <label for="shares-input" class="block font-semibold rounded-tr-lg px-4 py-2 bg-blue-800 text-yellow-400">Looking to buy?</label>
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-0 md:gap-4 px-3 md:px-4 py-2 border">
-        <div class="flex items-center mb-4">
-            <label for="symbol" class="block mr-4 text-sm font-medium text-gray-700">Stock</label>
-            <input autocomplete="off" class="form-input block w-full py-2 px-3 border-none" name="symbol" readonly value={{symbol}}>
-        </div>
 
-        <div class="flex items-center">
-            <label for="shares-input" class="block mr-4 text-sm font-medium text-gray-700">No. of Shares</label>
-            <input autocomplete="off" class="form-input block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" name="shares" placeholder="0" type="number" id="shares-input">
-        </div>
-        <div class="flex items-center -mt-7 md:mt-0 justify-start md:justify-center mb-6">
-            <button class="h-10/12 w-10/12 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text- font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mt-6" type="submit">Buy</button>  
-        </div>
-    </div>
-    <div class="py-4 px-2">
-        <div class="block"><span class="text-xs font-medium text-gray-500" id="cost"></span></div>
-        <div class="block"><span class="text-xs font-medium text-gray-500" id="cash"></span></div>
-    </div>
-    
-  </form>
-  {% endif %}
+<form action="/quote" method="post" class="max-w-lg mx-auto my-10">
+  <div class="flex mb-3 mx-4">
+    <input autocomplete="off" class="border-blue-800 border rounded-l-md py-2 px-3 rounded-md text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-4/5" name="symbol" placeholder="Pick a stock symbol." type="text">
+    <button class="bg-blue-800 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-r-md focus:outline-none focus:shadow-outline" type="submit">
+      Quote
+    </button>
+  </div>
+</form>
+{% if symbol %}
+<div class="max-w-lg mx-auto text-sm md:text-base">
+  <div class="grid grid-cols-3 bg-yellow-300 border-t border-l border-r rounded-t-md mx-4">
+    <div class="py-2 px-4 font-bold text-gray-700">Symbol</div>
+    <div class="py-2 px-4 font-bold text-gray-700">Company</div>
+    <div class="py-2 px-4 font-bold text-gray-700">Price</div>
+  </div>
+  <div class="grid grid-cols-3 bg-white border border-gray-200 rounded-b-md mx-4">
+    <div class="py-2 px-4 text-gray-700">{{ symbol }}</div>
+    <div class="py-2 px-4 text-gray-700">{{ company }}</div>
+    <div class="py-2 px-4 text-gray-700">{{ price }}</div>
+  </div>
 </div>
+
+<form action="/buy" method="post" class="max-w-lg mx-auto my-5 bg-white  p-4">
+  <label for="shares-input" class="block font-semibold rounded-tr-lg px-4 py-2 bg-blue-800 text-yellow-400">Looking to buy?</label>
+  <div class="grid grid-cols-2 md:grid-cols-3 gap-0 md:gap-4 px-3 md:px-4 py-2 border">
+      <div class="flex items-center mb-4">
+          <label for="symbol" class="block mr-4 text-sm font-medium text-gray-700">Stock</label>
+          <input autocomplete="off" class="form-input block w-full py-2 px-3 border-none" name="symbol" readonly value={{symbol}}>
+      </div>
+
+      <div class="flex items-center">
+          <label for="shares-input" class="block mr-4 text-sm font-medium text-gray-700">No. of Shares</label>
+          <input autocomplete="off" class="form-input block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" name="shares" placeholder="0" type="number" id="shares-input">
+      </div>
+      <div class="flex items-center -mt-7 md:mt-0 justify-start md:justify-center mb-6">
+          <button class="h-10/12 w-10/12 inline-flex justify-center py-2 px-4 border border-3 border-yellow-400 shadow-md text-yellow-400 font-medium rounded-md bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mt-6" type="submit">Buy</button>  
+      </div>
+  </div>
+  <div class="py-4 px-2">
+      <div class="block"><span class="text-xs font-medium text-gray-500" id="cost"></span></div>
+      <div class="block"><span class="text-xs font-medium text-gray-500" id="cash"></span></div>
+  </div>
+</form>
+{% endif %}
+</div>
+{% if not symbol %}
+<div class="mx-5 min-h-screen">
+  <div class="max-w-lg mx-auto text-sm md:text-base">
+    <h2 class="text-base font-bold mb-4 text-blue-800 text-center">Top 10 Actively Traded Stocks</h2>
+    <div class="grid grid-cols-4 bg-yellow-300 border border-gray-200 rounded-t-md mx-4 text-xs md:text-sm"> 
+      <div class="w-2/8 py-2 px-1 font-bold text-center text-gray-700">Symbol</div>
+      <div class="w-4/8 py-2 px-1 font-bold text-gray-700 ">Company</div>
+      <div class="w-1/8 py-2 px-1 font-bold text-center text-gray-700">Price</div>
+      <div class="w-1/8 py-2 px-1 font-bold text-center text-gray-700">Day Change</div>
+    </div>
+    {% for stock in stock_reco %}
+    <div class="grid grid-cols-4 bg-white border border-gray-200 rounded-b-md mx-4 text-xs md:text-sm"> 
+      <div class="w-2/8 py-2 px-1 text-gray-700 text-center">{{ stock.symbol }}</div>
+      <div class="w-4/8 py-2 px-1 text-gray-700">{{ stock.companyName }}</div>
+      <div class="w-1/8 py-2 px-1 text-gray-700 text-center">{{ stock.latestPrice | usd }}</div>
+      {% if stock.changePercent > 0 %}
+        <div class="w-1/8 py-2 px-1 text-green-700 text-center">+{{ stock.changePercent | percent }}</div>
+      {% else %}
+        <div class="w-1/8 py-2 px-1 text-red-700 text-center">{{ stock.changePercent | percent }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 
 <script>
     const sharesInput = document.querySelector('#shares-input');
