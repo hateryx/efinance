@@ -376,9 +376,10 @@ def quote():
         return render_template("quote.html", symbol=symbol, company=company, price=price, current_cash=current_cash)
 
     else:
-        stock_reco = top_performing_stocks()
 
-        return render_template("quote.html", stock_reco=stock_reco, test=stock_reco)
+        stock_reco = top_performing_stocks(explore="mostactive")
+
+        return render_template("quote.html", stock_reco=stock_reco, cash=current_cash, test=stock_reco)
 
 
 @fin_app.route("/buy", methods=["GET", "POST"])

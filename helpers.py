@@ -71,12 +71,12 @@ def percent(value):
     return '{:.2%}'.format(value)
 
 
-def top_performing_stocks():
+def top_performing_stocks(explore):
 
     # Contact API
     try:
         api_key = os.getenv("API_KEY")
-        url = f'https://cloud.iexapis.com/stable/stock/market/list/mostactive?token={api_key}'
+        url = f'https://cloud.iexapis.com/stable/stock/market/list/{explore}?token={api_key}'
         response = requests.get(url)
 
         if response.status_code == 200:
