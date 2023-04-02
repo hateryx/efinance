@@ -10,7 +10,7 @@ from sqlalchemy import text, func, cast, Integer
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, login_required, lookup, usd, percent, top_performing_stocks
+from helpers import apology, login_required, lookup, usd, percent, top_performing_stocks, ordinal
 
 from dotenv import load_dotenv
 
@@ -23,11 +23,13 @@ fin_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 fin_app.jinja_env.filters['usd'] = usd
 fin_app.jinja_env.filters['percent'] = percent
+fin_app.jinja_env.filters['ordinal'] = ordinal
 
 db = SQLAlchemy(fin_app)
 
 with fin_app.app_context():
     conn = db.engine.connect()
+    db.create_all()
 
 
 class users(db.Model):
@@ -78,13 +80,36 @@ class cash_running_bal(db.Model):
         self.cash_end_bal = cash_end_bal
 
 
+class port_ranker(db.Model):
+    p_r_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    port_update_date = db.Column(db.Date)
+    equity_value = db.Column(db.Integer, nullable=False)
+    net_gain_loss = db.Column(db.Integer, nullable=False)
+
+    def __init__(self, p_r_id, user_id,  port_update_date, equity_value, net_gain_loss):
+        self.p_r_id = p_r_id
+        self.user_id = user_id
+        self.port_update_date = port_update_date
+        self.equity_value = equity_value
+        self.net_gain_loss = net_gain_loss
+
+
+def inquire_username(current_user):
+    username_query = text("SELECT username FROM users WHERE id = :id")
+    username_select = db.session.execute(
+        username_query, {'id': current_user}).fetchone()
+
+    username = username_select[0]
+
+    return username
+
+
 def inquire_latest_cash(current_user):
     cash_query = text(
         "SELECT cash_end_bal FROM cash_running_bal WHERE user_id = :user_id AND c_bal_id = (SELECT MAX(c_bal_id) FROM cash_running_bal WHERE user_id = :user_id)")
-
     cash_latest_bal = db.session.execute(
         cash_query, {'user_id': current_user}).fetchone()
-
     current_cash = int(cash_latest_bal[0])
 
     return current_cash
@@ -156,15 +181,6 @@ def after_request(response):
     return response
 
 
-@fin_app.after_request
-def after_request(response):
-    """Ensure responses aren't cached"""
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    response.headers["Expires"] = 0
-    response.headers["Pragma"] = "no-cache"
-    return response
-
-
 @fin_app.route('/')
 def index():
     try:
@@ -195,7 +211,6 @@ def register():
         users_dict = db.session.execute(
             text("SELECT username FROM users")).fetchall()
         username_list = []
-
         for each in users_dict:
             username_list.append(each[0])
 
@@ -211,17 +226,27 @@ def register():
             cast(latest_user_id, Integer)).scalar()
         current_user_id = latest_user_id_toInt + 1
 
-        user_insert = text(
-            "INSERT INTO users (username, hash, cash) VALUES (:username, :hashed_password, :cash)")
+        try:
+            user_insert = text(
+                "INSERT INTO users (username, hash, cash) VALUES (:username, :hashed_password, :cash)")
 
-        db.session.execute(
-            user_insert, {'username': username, 'hashed_password': hashed_password, 'cash': 10000.00})
+            db.session.execute(
+                user_insert, {'username': username, 'hashed_password': hashed_password, 'cash': 10000.00})
 
-        cash_run_bal_insert = text(
-            "INSERT INTO cash_running_bal (user_id, txn_id, txn_date, amount_change,cash_end_bal) VALUES (:user_id, :txn_id, :txn_date,:amount_change,:cash_end_bal)")
+            cash_run_bal_insert = text(
+                "INSERT INTO cash_running_bal (user_id, txn_id, txn_date, amount_change,cash_end_bal) VALUES (:user_id, :txn_id, :txn_date,:amount_change,:cash_end_bal)")
 
-        db.session.execute(cash_run_bal_insert, {'user_id': current_user_id, 'txn_id': 0,
-                                                 'txn_date': txn_date, 'amount_change': 10000, 'cash_end_bal': 10000})
+            db.session.execute(cash_run_bal_insert, {'user_id': current_user_id, 'txn_id': 0,
+                                                     'txn_date': txn_date, 'amount_change': 10000, 'cash_end_bal': 10000})
+
+            port_ranker_insert = text(
+                "INSERT INTO port_ranker (user_id, port_update_date, equity_value, net_gain_loss) VALUES (:user_id, :port_update_date, 10000, 0)")
+
+            db.session.execute(port_ranker_insert, {'user_id': current_user_id,
+                                                    'port_update_date': txn_date})
+        except Exception as e:
+            print(e)
+            sys.exit()
 
         db.session.commit()
 
@@ -287,20 +312,47 @@ def logout():
 def portfolio():
 
     current_user = session["user_id"]
-
     current_cash = inquire_latest_cash(current_user)
+    current_datetime = datetime.datetime.now()
 
     try:
         stock_portfolio = inquire_portfolio(current_user)
         total_share_value = 0
-
         for each in stock_portfolio:
             total_share_value += each["market_value"]
 
     except Exception:
         return apology("Either the API key is not valid or the API service provider is having issues.")
 
-    return render_template("portfolio.html", portfolio=stock_portfolio, cash=current_cash, total_share_value=total_share_value)
+    username = inquire_username(current_user)
+    equity_value = total_share_value + current_cash
+    net_gain_loss = equity_value - 10000
+    txn_date = current_datetime.strftime('%m/%d/%Y %H:%M:%S')
+
+    try:
+        port_ranker_update = text(
+            "UPDATE port_ranker SET port_update_date = :port_update_date, equity_value = :equity_value, net_gain_loss = :net_gain_loss WHERE user_id = :user_id")
+        db.session.execute(port_ranker_update, {
+            'user_id': current_user, 'port_update_date': txn_date, 'equity_value': equity_value, 'net_gain_loss': net_gain_loss})
+    except Exception:
+        return apology("Server is having issues.")
+
+    db.session.commit()
+
+    port_ranker_query = text(
+        "SELECT username, equity_value, net_gain_loss FROM (SELECT users.username,port_ranker.equity_value,port_ranker.net_gain_loss FROM port_ranker JOIN users ON port_ranker.user_id = users.id) ORDER BY net_gain_loss DESC LIMIT 10")
+    leaderboard = db.session.execute(port_ranker_query).fetchall()
+
+    leaders = []
+    for row in leaderboard:
+        leaders.append(row[0])
+    if username in leaders:
+        isLeader = True
+        rank = leaders.index(username)
+    else:
+        isLeader = False
+
+    return render_template("portfolio.html", username=username, portfolio=stock_portfolio, cash=current_cash, total_share_value=total_share_value, leaderboard=leaderboard, isLeader=isLeader, rank=rank)
 
 
 @fin_app.route("/quote", methods=["GET", "POST"])
@@ -309,7 +361,6 @@ def quote():
     """Get stock quote."""
 
     current_user = session["user_id"]
-
     current_cash = inquire_latest_cash(current_user)
 
     if request.method == "POST":
@@ -336,7 +387,6 @@ def buy():
     """Buy shares of stock"""
 
     current_user = session["user_id"]
-
     current_cash = inquire_latest_cash(current_user)
 
     if request.method == "POST":
@@ -357,18 +407,6 @@ def buy():
             return apology("The specified number of shares you inputted is invalid.")
 
         cost_of_shares = stock_details["price"] * no_of_shares
-
-        # cash_dict = db.session.execute(text(
-        #     "SELECT cash FROM users WHERE id = :current_user"), {'current_user': current_user}).fetchall()
-        # current_cash = cash_dict[0].cash
-
-        cash_query = text(
-            "SELECT cash_end_bal FROM cash_running_bal WHERE user_id = :user_id AND c_bal_id = (SELECT MAX(c_bal_id) FROM cash_running_bal WHERE user_id = :user_id)")
-
-        cash_latest_bal = db.session.execute(
-            cash_query, {'user_id': current_user}).fetchone()
-
-        current_cash = int(cash_latest_bal[0])
 
         current_datetime = datetime.datetime.now()
         txn_date = current_datetime.strftime('%m/%d/%Y %H:%M:%S')
@@ -437,12 +475,10 @@ def sell():
     stock_holdings = inquire_portfolio(current_user)
 
     stock_owned = []
-
     for i in range(0, len(stock_holdings)):
         stock_owned.append(stock_holdings[i]["stock"])
 
     stock_hash_map = {}
-
     for each in stock_holdings:
         key = each['stock']
         stock_hash_map[key] = 0

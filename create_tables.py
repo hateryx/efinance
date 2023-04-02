@@ -12,6 +12,10 @@ with fin_app.app_context():
 
     cursor.execute('''CREATE TABLE cash_running_bal
       (c_bal_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, user_id INTEGER, txn_id INTEGER, txn_date DATE NOT NULL, amount_change NUMERIC NOT NULL, cash_end_bal NUMERIC NOT NULL)''')
+
+    cursor.execute('''CREATE TABLE port_ranker
+      (p_r_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, user_id INTEGER, port_update_date DATE NOT NULL, equity_value NUMERIC NOT NULL, net_gain_loss NUMERIC NOT NULL)''')
+
     # cursor.execute(
     #     '''ALTER TABLE cash_running_bal ADD COLUMN txn_date DATE NOT NULL''')
     # cursor.execute(

@@ -89,3 +89,11 @@ def top_performing_stocks():
         response.raise_for_status()
     except requests.RequestException:
         return 'Error retrieving data from IEX Cloud'
+
+
+def ordinal(value):
+    if 10 <= value % 100 <= 20:
+        suffix = "th"
+    else:
+        suffix = {1: "st", 2: "nd", 3: "rd"}.get(value % 10, "th")
+    return f"{value}{suffix}"
