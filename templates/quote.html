@@ -5,20 +5,20 @@
 {% endblock %}
 
 {% block main %}
-<div class="my-10 flex flex-col md:flex-row justify-between items-center md:items-start border">
+<h2 class="mx-5 text-2xl md:text-4xl font-semibold text-blue-900 items-left mb-0.5">Explore which stocks to buy</h2>
+<p class="mx-5 text-sm md:text-md lg:text-lg font-thin">You have <strong>{{ current_cash|usd }}</strong> available to buy stocks. </p>
+<div class="flex flex-col md:flex-row justify-between items-center md:items-start">
   <!-- first column -->
-  <div class="section w-full border">
-    <h2 class="text-2xl md:text-4xl font-semibold text-blue-900 items-left mb-0.5">Explore which stocks to buy</h2>
-    <p class="text-sm md:text-md lg:text-lg font-thin">You have <strong>{{ cash|usd }}</strong> available to buy stocks. </p>
-    <form action="/quote" method="post" class="mx-auto my-10">
+  <div class="section w-full mb-5">
+    <form action="/explore" method="post" class="mx-auto my-10">
       <div class="flex mb-3 mx-4">
           <select
-            id="explore"
+            id="exploreSelect"
             name="explore"
             class="form-select border-blue-800 border rounded-l-md py-2 px-3 rounded-md text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-4/5"
           >
-            <option value="">--Select--</option>
-            <option value="mootley">The Mootley Fool Recommendation   </option>
+            <option value="mostactive">Stocks with Highest Trading Volume </option>
+            <option value="Technology">Technology</option>
             <option value="mootley">Stocks with Highest Trading Volume   </option>
           </select>
         <button class="bg-blue-800 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-r-md focus:outline-none focus:shadow-outline" type="submit">
@@ -26,20 +26,69 @@
         </button>
       </div>
     </form>
+    <div>{{ test }}</div>
+    <div class="pl-5 pr-7 b-5 border text-justify text-sm md:text-base font-thin">
+      <p id="tip-p1">Think of the stock market like a marketplace where people are buying and selling shares of different companies. When a stock has high trading volume, it means there are a lot of buyers and sellers interested in that particular stock. This is a good thing for investors because it means they can buy or sell shares more easily without affecting the price of the stock too much.</p>
+      <br>
+      <p id="tip-p2">Stocks with high trading volume can be a good investment choice because they offer liquidity, market efficiency, and price discovery</p>
+    </div>
   </div>
   <!-- second column -->
-  <div class="section w-full border">
+  <div class="section w-full container">
     {% if not symbol %}
     <form action="/quote" method="post" class="mx-auto my-10">
       <div class="flex mb-3 mx-4">
-        <input autocomplete="off" class="border-blue-800 border rounded-l-md py-2 px-3 rounded-md text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-4/5" name="symbol" placeholder="Pick a stock symbol." type="text">
+        <input autocomplete="off" class="border-blue-800 border rounded-l-md py-2 px-3 rounded-md text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-5/8 md:w-4/5" name="symbol" placeholder="Pick a stock symbol." type="text">
         <button class="bg-blue-800 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-r-md focus:outline-none focus:shadow-outline" type="submit">
-          Quote
+          Quote to Buy
         </button>
       </div>
     </form>
     {% endif %}
     {% if symbol %}
+    <div class="max-w-lg mx-auto mb-6 text-sm md:text-base">
+      <div class="grid grid-row-6 border-t border-l border-r rounded-md mx-4 pb-4 shadow-lg">
+        <div class="w-full rounded-t-md bg-blue-800 text-white font-semibold px-4 py-2">Company Profile</div>
+        <div class="flex py-3 px-4 text-gray-700 text-xs md:text-sm">
+          <div class="w-2/5 font-semibold ">Company Name</div>
+          <div class="w-3/5 text-gray-700">{{ company }}</div>
+        </div>
+        <div class="py-1 px-4 text-gray-700 text-xs md:text-sm">
+          <div class="font-semibold ">Description</div>
+          <div class="text-gray-700 font-light mb-4">{{ description }}</div>
+        </div>
+        <div class="flex py-1 px-4 text-gray-700 text-xs md:text-sm">
+          <div class="w-1/2 flex">
+            <div class="w-2/5 font-semibold">Industry</div>
+            <div class="w-3/5 font-light">{{ industry }}</div>
+          </div>
+          <div class="w-1/2 flex">
+            <div class="w-2/5 font-semibold">Sector</div>
+            <div class="w-3/5 font-light">{{ sector }}</div>
+          </div>
+        </div>
+        <div class="flex py-1 px-4 text-gray-700 text-xs md:text-sm">
+          <div class="w-1/2 flex">
+            <div class="w-2/5 font-semibold">Market Cap (in USD)</div>
+            <div class="w-3/5 font-light">{{ marketCap|millions }}</div>
+          </div>
+          <div class="w-1/2 flex">
+            <div class="w-2/5 font-semibold">Trading Volume</div>
+            <div class="w-3/5">{{ volume|millions }}</div>
+          </div>
+        </div>
+        <div class="flex py-1 px-4 text-gray-700 text-xs md:text-sm">
+          <div class="w-1/2 ">
+            <div class="font-semibold">Website</div>
+            <div class="font-light">https://{{ website }}</div>
+          </div>
+          <div class="w-1/2 flex">
+            <div class="w-2/5 font-semibold">Stock Exchange</div>
+            <div class="w-3/5">{{ exchange }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="max-w-lg mx-auto text-sm md:text-base">
       <div class="grid grid-cols-3 bg-yellow-300 border-t border-l border-r rounded-t-md mx-4">
         <div class="py-2 px-4 font-bold text-gray-700">Symbol</div>
@@ -53,7 +102,7 @@
       </div>
     </div>
     <form action="/buy" method="post" class="max-w-lg mx-auto my-5 bg-white p-4">
-      <label for="shares-input" class="block font-semibold rounded-tr-lg px-4 py-2 bg-blue-800 text-yellow-400">Looking to buy?</label>
+      <label for="shares-input" class="block font-semibold rounded-t-md px-4 py-2 bg-blue-800 text-yellow-400">Specify the no. of shares to buy</label>
       <div class="grid grid-cols-2 md:grid-cols-3 gap-0 md:gap-4 px-3 md:px-4 py-2 border">
           <div class="flex items-center mb-4">
               <label for="symbol" class="block mr-4 text-sm font-medium text-gray-700">Stock</label>
@@ -67,34 +116,32 @@
               <button class="h-10/12 w-10/12 inline-flex justify-center py-2 px-4 border border-3 border-yellow-400 shadow-md text-yellow-400 font-medium rounded-md bg-blue-700 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mt-6" type="submit">Buy</button>  
           </div>
       </div>
-      <div class="py-4 px-2">
-          <div class="block"><span class="text-xs font-medium text-gray-500" id="cost"></span></div>
-          <div class="block"><span class="text-xs font-medium text-gray-500" id="cash"></span></div>
+      <div class="py-4 px-2 border">
+          <div class="block"><span class="text-sm font-medium text-blue-500" id="cost"></span></div>
+          <div class="block"><span class="text-sm font-medium text-blue-500" id="cash"></span></div>
       </div>
     </form>
     {% endif %}
     {% if not symbol %}
-    <div class="mx-5">
-      <div class="max-w-lg text-sm md:text-base items-left">
-        <h2 class="text-base font-bold mb-4 text-blue-800 text-center">Top 10 Actively Traded Stocks</h2>
-        <div class="grid grid-cols-4 bg-yellow-300 border border-gray-200 rounded-t-md mx-4 text-xs md:text-sm w-full"> 
-          <div class="w-2/8 py-2 px-1 font-bold text-center text-gray-700">Symbol</div>
-          <div class="w-4/8 py-2 px-1 font-bold text-gray-700 ">Company</div>
-          <div class="w-1/8 py-2 px-1 font-bold text-center text-gray-700">Price</div>
-          <div class="w-1/8 py-2 px-1 font-bold text-center text-gray-700">Day Change</div>
+    <div class="border container">
+      <h2 class="m-4 text-base font-bold mb-4 text-blue-800 text-left">Top 10 Stocks With Highest Volume of the Day</h2>
+      <div class="w-10/12 justify-content items-center text-sm md:text-base ">
+        <div class="w-full">
+          <div class="grid grid-cols-4 bg-yellow-300 border border-gray-200 rounded-t-md mx-4 text-xs md:text-sm w-full"> 
+            <div class="w-2/8 py-2 px-1 font-bold text-center text-gray-700">Symbol</div>
+            <div class="w-4/8 py-2 px-1 font-bold text-gray-700 ">Company</div>
+            <div class="w-1/8 py-2 px-1 font-bold text-center text-gray-700">Price</div>
+            <div class="w-1/8 py-2 px-1 font-bold text-center text-gray-700">Day Change</div>
+          </div>
+          {% for stock in stock_reco %}
+          <div class="grid grid-cols-4 bg-white border border-gray-200 mx-4 text-xs md:text-sm w-full"> 
+            <div class="w-2/8 py-2 px-1 text-gray-700 text-center">{{ stock.symbol }}</div>
+            <div class="w-4/8 py-2 px-1 text-gray-700">{{ stock.companyName }}</div>
+            <div class="w-1/8 py-2 px-1 text-gray-700 text-center">{{ stock.latestPrice }}</div>
+            
+          </div>
+          {% endfor %}
         </div>
-        {% for stock in stock_reco %}
-        <div class="grid grid-cols-4 bg-white border border-gray-200 mx-4 text-xs md:text-sm w-full"> 
-          <div class="w-2/8 py-2 px-1 text-gray-700 text-center">{{ stock.symbol }}</div>
-          <div class="w-4/8 py-2 px-1 text-gray-700">{{ stock.companyName }}</div>
-          <div class="w-1/8 py-2 px-1 text-gray-700 text-center">{{ stock.latestPrice | usd }}</div>
-          {% if stock.changePercent > 0 %}
-            <div class="w-1/8 py-2 px-1 text-green-700 text-center">+{{ stock.changePercent | percent }}</div>
-          {% else %}
-            <div class="w-1/8 py-2 px-1 text-red-700 text-center">{{ stock.changePercent | percent }}</div>
-          {% endif %}
-        </div>
-        {% endfor %}
       </div>
       {% endif %}
     </div>
@@ -102,21 +149,21 @@
 </div>
 
 <script>
-    const sharesInput = document.querySelector('#shares-input');
-    const costSpan = document.querySelector('#cost');
-    const cashSpan = document.querySelector('#cash');
+  const sharesInput = document.querySelector('#shares-input');
+  const costSpan = document.querySelector('#cost');
+  const cashSpan = document.querySelector('#cash');
 
-    sharesInput.addEventListener('input', () => {
-      const shares = sharesInput.value;
-      const sharePrice = {{ price }}; // replace with the actual share price variable from Jinja
-      const available_cash = {{current_cash}}
+  sharesInput.addEventListener('input', () => {
+    const shares = sharesInput.value;
+    const sharePrice = {{ price }}; // replace with the actual share price variable from Jinja
+    const available_cash = {{ current_cash }};
 
-      const cost = shares * sharePrice;
-      const projected_cash = available_cash - cost;
+    const cost = shares * sharePrice;
+    const projected_cash = available_cash - cost;
 
-      costSpan.textContent = `Total Cost: $${cost.toFixed(2)}`;
-      cashSpan.textContent = `Projected Cash Balance (after purchase): $${projected_cash.toFixed(2)}`;      
-    });
+    costSpan.textContent = `Total Cost: $${cost.toFixed(2)}`;
+    cashSpan.textContent = `Projected Cash Balance (after purchase): $${projected_cash.toFixed(2)}`;      
+  });
 </script>
   
 {% endblock %}

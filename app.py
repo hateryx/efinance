@@ -10,7 +10,7 @@ from sqlalchemy import text, func, cast, Integer
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, login_required, lookup, usd, percent, top_performing_stocks, ordinal
+from helpers import apology, login_required, lookup, company_lookup, usd, percent, millions, top_performing_stocks, top_stocks_sector, ordinal
 
 from dotenv import load_dotenv
 
@@ -23,6 +23,7 @@ fin_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 fin_app.jinja_env.filters['usd'] = usd
 fin_app.jinja_env.filters['percent'] = percent
+fin_app.jinja_env.filters['millions'] = millions
 fin_app.jinja_env.filters['ordinal'] = ordinal
 
 db = SQLAlchemy(fin_app)
@@ -355,6 +356,20 @@ def portfolio():
     return render_template("portfolio.html", username=username, portfolio=stock_portfolio, cash=current_cash, total_share_value=total_share_value, leaderboard=leaderboard, isLeader=isLeader, rank=rank)
 
 
+@fin_app.route("/explore", methods=['POST'])
+@login_required
+def explore():
+    current_user = session["user_id"]
+    current_cash = inquire_latest_cash(current_user)
+
+    sector = request.form.get("explore")
+    stock_reco = top_stocks_sector(sector)
+
+    # return render_template("quote.html", test=stock_reco, current_cash=current_cash)
+
+    return render_template("quote.html", stock_reco=stock_reco, current_cash=current_cash)
+
+
 @fin_app.route("/quote", methods=["GET", "POST"])
 @login_required
 def quote():
@@ -362,6 +377,15 @@ def quote():
 
     current_user = session["user_id"]
     current_cash = inquire_latest_cash(current_user)
+
+#     "price": float(quote["latestPrice"]),
+#     "symbol": quote["symbol"],
+#     "description": quote["description"],
+#     "industry": quote["industry"],
+#     "sector": quote["sector"],
+#     "marketCap": quote["marketCap"],
+#     "volume": quote["volume"],
+#     "website": quote["exchange"]
 
     if request.method == "POST":
         symbol = request.form.get("symbol")
@@ -372,14 +396,26 @@ def quote():
 
         price = symbol_details["price"]
         company = symbol_details["name"]
+        volume = symbol_details["volume"]
+        marketCap = int(symbol_details["marketCap"])
 
-        return render_template("quote.html", symbol=symbol, company=company, price=price, current_cash=current_cash)
+        company_info = company_lookup(symbol)
+
+        description = company_info["description"]
+        industry = company_info["industry"]
+        sector = company_info["sector"]
+        exchange = company_info["exchange"]
+        website = company_info["website"]
+
+        # return render_template("quote.html", symbol=symbol, company=company, price=price, test=company_info, current_cash=current_cash)
+
+        return render_template("quote.html", symbol=symbol, company=company, price=price, description=description, industry=industry, sector=sector, marketCap=marketCap, volume=volume, website=website, exchange=exchange, current_cash=current_cash)
 
     else:
 
         stock_reco = top_performing_stocks(explore="mostactive")
 
-        return render_template("quote.html", stock_reco=stock_reco, cash=current_cash, test=stock_reco)
+        return render_template("quote.html", stock_reco=stock_reco, current_cash=current_cash, test=stock_reco)
 
 
 @fin_app.route("/buy", methods=["GET", "POST"])
