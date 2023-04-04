@@ -132,25 +132,6 @@ def top_performing_stocks(explore):
         return 'Error retrieving data from IEX Cloud'
 
 
-def top_stocks_sector(sector):
-    # Contact API
-    try:
-        api_key = os.getenv("API_KEY")
-        url = f'https://cloud.iexapis.com/stable/stock/market/collection/sector?collectionName={sector}&token={api_key}'
-        response = requests.get(url)
-
-        if response.status_code == 200:
-            # retrieve the top 10 performing stocks
-            stocks = response.json()[:10]
-            return stocks
-        else:
-            return 'Error retrieving data from IEX Cloud'
-
-        response.raise_for_status()
-    except requests.RequestException:
-        return 'Error retrieving data from IEX Cloud'
-
-
 def ordinal(value):
     if 10 <= value % 100 <= 20:
         suffix = "th"
