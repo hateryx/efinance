@@ -435,6 +435,11 @@ def buy():
     if request.method == "POST":
         token = request.form.get("token")
 
+        if token in session.get('used_tokens', []):
+            return redirect("/")
+        else:
+            session.setdefault('used_tokens', []).append(token)
+
         buying_stock = request.form.get("symbol")
         no_of_shares = request.form.get("shares")
 
@@ -484,12 +489,7 @@ def buy():
             print(f"An error occurred: {e}")
             sys.exit(1)
 
-        if token in session.get('used_tokens', []):
-            return redirect("/")
-
-        else:
-            db.session.commit()
-            session.setdefault('used_tokens', []).append(token)
+        db.session.commit()
 
         return redirect("/")
 

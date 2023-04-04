@@ -52,7 +52,6 @@ const mostactive_tip_p2 =
 
 const infocus_tip_p1 =
   "Trading stocks with the most news mentions may be advantageous for some traders because it can provide insights into market sentiment and help identify stocks that are gaining attention and popularity among investors. This can potentially drive up demand and increase the price of the stock, making it a profitable trade.";
-
 const infocus_tip_p2 =
   "However, news sentiment can sometimes be biased or inaccurate, leading to misinterpretation and misjudgment of market trends. Additionally, high news mentions do not necessarily correlate with stock performance or value, and other factors such as financial reports and company fundamentals should also be considered. Finally, news reports can be driven by short-term events and hype, which can cause volatility and uncertainty in the market.";
 
@@ -63,37 +62,42 @@ const gainers_tip_p2 =
 
 const losers_tip_p1 =
   "One potential advantage of trading losing stocks of the day is that they may be undervalued and have potential for a rebound in the future. By buying these stocks at a lower price, traders may be able to profit if the stock price increases in the future. Additionally, selling pressure on these stocks may create a buying opportunity for traders looking to enter the market at a lower price.";
-
 const losers_tip_p2 =
   "However, the disadvantage is that they may continue to decline in value, leading to losses for the trader. This can happen if the stock is experiencing a significant negative event or trend that is not yet fully reflected in its price. Additionally, stocks that are losing value may be subject to panic selling, which can exacerbate their decline and make it difficult for a trader to exit the position at a favorable price";
 
-exploreSelect.addEventListener("change", (event) => {
-  const option = event.target.value;
+if (exploreSelect) {
+  exploreSelect.addEventListener("change", (event) => {
+    const option = event.target.value;
 
-  switch (option) {
-    case "mostactive":
-      tip_p1.textContent = mostactive_tip_p1;
-      tip_p2.textContent = mostactive_tip_p2;
-      break;
-    case "mootley":
-      tip_p1.textContent = mootley_tip_p1;
-      tip_p2.textContent = mootley_tip_p2;
-      break;
-    case "infocus":
-      tip_p1.textContent = infocus_tip_p1;
-      tip_p2.textContent = infocus_tip_p2;
-      break;
-    case "gainers":
-      tip_p1.textContent = gainers_tip_p1;
-      tip_p2.textContent = gainers_tip_p2;
-      break;
-  }
-});
-
-const submitBtn = document.getElementById("submit-btn");
+    switch (option) {
+      case "mostactive":
+        tip_p1.textContent = mostactive_tip_p1;
+        tip_p2.textContent = mostactive_tip_p2;
+        break;
+      case "mootley":
+        tip_p1.textContent = mootley_tip_p1;
+        tip_p2.textContent = mootley_tip_p2;
+        break;
+      case "infocus":
+        tip_p1.textContent = infocus_tip_p1;
+        tip_p2.textContent = infocus_tip_p2;
+        break;
+      case "gainers":
+        tip_p1.textContent = gainers_tip_p1;
+        tip_p2.textContent = gainers_tip_p2;
+        break;
+    }
+  });
+}
 
 // Add an event listener to the form's submit event
-document.getElementById("my-form").addEventListener("submit", function () {
-  // Disable the submit button to prevent multiple submissions
-  submitBtn.disabled = true;
-});
+const submitBuyBtn = document.getElementById("executeBuyBtn");
+
+if (submitBuyBtn) {
+  document
+    .getElementById("executeBuyForm")
+    .addEventListener("submit", function () {
+      // Disable the submit button to prevent multiple submissions
+      submitBuyBtn.disabled = true;
+    });
+}
