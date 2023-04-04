@@ -1,16 +1,17 @@
 import os
 import datetime
 import sys
+import uuid
 
 from flask import Flask, flash, redirect, render_template, request, session
-# from flask_session import Session
+from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text, func, cast, Integer
 
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, login_required, lookup, company_lookup, usd, percent, millions, top_performing_stocks, top_stocks_sector, ordinal
+from helpers import apology, login_required, lookup, company_lookup, usd, percent, millions, top_performing_stocks, ordinal
 
 from dotenv import load_dotenv
 
@@ -26,11 +27,17 @@ fin_app.jinja_env.filters['percent'] = percent
 fin_app.jinja_env.filters['millions'] = millions
 fin_app.jinja_env.filters['ordinal'] = ordinal
 
+# test
+fin_app.config["SESSION_PERMANENT"] = False
+fin_app.config["SESSION_TYPE"] = "filesystem"
+Session(fin_app)
+
 db = SQLAlchemy(fin_app)
 
 with fin_app.app_context():
     conn = db.engine.connect()
     db.create_all()
+
 
 class users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -352,7 +359,7 @@ def portfolio():
     else:
         isLeader = False
 
-    return render_template("portfolio.html", username=username, portfolio=stock_portfolio, cash=current_cash, total_share_value=total_share_value, leaderboard=leaderboard, isLeader=isLeader, rank=rank)
+    return render_template("portfolio.html", username=username, equity_value=equity_value, net_gain_loss=net_gain_loss, portfolio=stock_portfolio, cash=current_cash, total_share_value=total_share_value, leaderboard=leaderboard, isLeader=isLeader, rank=rank)
 
 
 @fin_app.route("/explore", methods=['POST'])
@@ -361,12 +368,18 @@ def explore():
     current_user = session["user_id"]
     current_cash = inquire_latest_cash(current_user)
 
-    sector = request.form.get("explore")
-    stock_reco = top_stocks_sector(sector)
+    explore = request.form.get("explore")
+    stock_reco = top_performing_stocks(explore)
 
-    # return render_template("quote.html", test=stock_reco, current_cash=current_cash)
+    match explore:
+        case 'mostactive':
+            header = 'Top 10 Stocks With Most Active Volume of the Day'
+        case 'gainers':
+            header = 'Top 10 Stocks with Highest Gains of the Day'
+        case 'losers':
+            header = 'Top 10 Stocks with Sharpest Loss of the Day'
 
-    return render_template("quote.html", stock_reco=stock_reco, current_cash=current_cash)
+    return render_template("quote.html", stock_reco=stock_reco, current_cash=current_cash, header=header, selected=explore)
 
 
 @fin_app.route("/quote", methods=["GET", "POST"])
@@ -376,15 +389,6 @@ def quote():
 
     current_user = session["user_id"]
     current_cash = inquire_latest_cash(current_user)
-
-#     "price": float(quote["latestPrice"]),
-#     "symbol": quote["symbol"],
-#     "description": quote["description"],
-#     "industry": quote["industry"],
-#     "sector": quote["sector"],
-#     "marketCap": quote["marketCap"],
-#     "volume": quote["volume"],
-#     "website": quote["exchange"]
 
     if request.method == "POST":
         symbol = request.form.get("symbol")
@@ -406,15 +410,18 @@ def quote():
         exchange = company_info["exchange"]
         website = company_info["website"]
 
+        token = str(uuid.uuid4())
+
         # return render_template("quote.html", symbol=symbol, company=company, price=price, test=company_info, current_cash=current_cash)
 
-        return render_template("quote.html", symbol=symbol, company=company, price=price, description=description, industry=industry, sector=sector, marketCap=marketCap, volume=volume, website=website, exchange=exchange, current_cash=current_cash)
+        return render_template("quote.html", token=token, symbol=symbol, company=company, price=price, description=description, industry=industry, sector=sector, marketCap=marketCap, volume=volume, website=website, exchange=exchange, current_cash=current_cash)
 
     else:
+        token = str(uuid.uuid4())
 
         stock_reco = top_performing_stocks(explore="mostactive")
 
-        return render_template("quote.html", stock_reco=stock_reco, current_cash=current_cash, test=stock_reco)
+        return render_template("quote.html", stock_reco=stock_reco, current_cash=current_cash, token=token)
 
 
 @fin_app.route("/buy", methods=["GET", "POST"])
@@ -426,6 +433,8 @@ def buy():
     current_cash = inquire_latest_cash(current_user)
 
     if request.method == "POST":
+        token = request.form.get("token")
+
         buying_stock = request.form.get("symbol")
         no_of_shares = request.form.get("shares")
 
@@ -469,13 +478,18 @@ def buy():
             cash_run_bal_insert = text(
                 "INSERT INTO cash_running_bal (user_id, txn_id, txn_date, amount_change,cash_end_bal) VALUES (:user_id, :txn_id, :txn_date,:amount_change,:cash_end_bal)")
             db.session.execute(cash_run_bal_insert, {'user_id': current_user, 'txn_id': current_stock_txn_id,
-                               'txn_date': txn_date, 'amount_change': cost_of_shares*-1, 'cash_end_bal': ending_cash_on_hand})
+                                                     'txn_date': txn_date, 'amount_change': cost_of_shares*-1, 'cash_end_bal': ending_cash_on_hand})
 
         except Exception as e:
             print(f"An error occurred: {e}")
             sys.exit(1)
 
-        db.session.commit()
+        if token in session.get('used_tokens', []):
+            return redirect("/")
+
+        else:
+            db.session.commit()
+            session.setdefault('used_tokens', []).append(token)
 
         return redirect("/")
 

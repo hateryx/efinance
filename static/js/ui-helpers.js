@@ -50,10 +50,22 @@ const mostactive_tip_p1 =
 const mostactive_tip_p2 =
   "Stocks with high trading volume can be a good investment choice because they offer liquidity, market efficiency, and price discovery";
 
-const mootley_tip_p1 =
-  "Motley Fool is a multimedia financial-services company that provides stock recommendations and investment advice to its subscribers.";
-const mootley_tip_p2 =
-  "The company does research on companies and markets to help investors make informed investment decisions. They also have a track record of recommending stocks that have led to significant returns for investors. For example, the company has recommended stocks such as Amazon, Apple, and Netflix before they became some of the largest companies in the world.";
+const infocus_tip_p1 =
+  "Trading stocks with the most news mentions may be advantageous for some traders because it can provide insights into market sentiment and help identify stocks that are gaining attention and popularity among investors. This can potentially drive up demand and increase the price of the stock, making it a profitable trade.";
+
+const infocus_tip_p2 =
+  "However, news sentiment can sometimes be biased or inaccurate, leading to misinterpretation and misjudgment of market trends. Additionally, high news mentions do not necessarily correlate with stock performance or value, and other factors such as financial reports and company fundamentals should also be considered. Finally, news reports can be driven by short-term events and hype, which can cause volatility and uncertainty in the market.";
+
+const gainers_tip_p1 =
+  "Trading top gaining stocks of the day can potentially yield high returns in a short amount of time, as these stocks have demonstrated strong upward momentum and may continue to rise in value. This strategy can also be appealing to short-term traders who are looking to make quick profits.";
+const gainers_tip_p2 =
+  "The main disadvantage of trading top gaining stocks of the day is that it can be highly volatile and unpredictable. While there is potential for significant gains, there is also a high risk of significant losses. The gains made by these stocks may be due to short-term factors, such as market hype, speculation, or news events, rather than underlying business fundamentals. As a result, it can be difficult to predict whether the gains will continue or whether the stock will experience a sharp decline in value.";
+
+const losers_tip_p1 =
+  "One potential advantage of trading losing stocks of the day is that they may be undervalued and have potential for a rebound in the future. By buying these stocks at a lower price, traders may be able to profit if the stock price increases in the future. Additionally, selling pressure on these stocks may create a buying opportunity for traders looking to enter the market at a lower price.";
+
+const losers_tip_p2 =
+  "However, the disadvantage is that they may continue to decline in value, leading to losses for the trader. This can happen if the stock is experiencing a significant negative event or trend that is not yet fully reflected in its price. Additionally, stocks that are losing value may be subject to panic selling, which can exacerbate their decline and make it difficult for a trader to exit the position at a favorable price";
 
 exploreSelect.addEventListener("change", (event) => {
   const option = event.target.value;
@@ -67,5 +79,21 @@ exploreSelect.addEventListener("change", (event) => {
       tip_p1.textContent = mootley_tip_p1;
       tip_p2.textContent = mootley_tip_p2;
       break;
+    case "infocus":
+      tip_p1.textContent = infocus_tip_p1;
+      tip_p2.textContent = infocus_tip_p2;
+      break;
+    case "gainers":
+      tip_p1.textContent = gainers_tip_p1;
+      tip_p2.textContent = gainers_tip_p2;
+      break;
   }
+});
+
+const submitBtn = document.getElementById("submit-btn");
+
+// Add an event listener to the form's submit event
+document.getElementById("my-form").addEventListener("submit", function () {
+  // Disable the submit button to prevent multiple submissions
+  submitBtn.disabled = true;
 });
