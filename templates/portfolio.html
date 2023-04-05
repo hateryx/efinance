@@ -1,6 +1,6 @@
 {% extends "layout.html" %} {% block title %} {% endblock %} {% block main %}
-<div class="border grid md:grid-cols-2 gap-6">
-  <div class="section mx-8 lg:mx-10 w-full">
+<div class="border grid md:grid-cols-2 gap-4">
+  <div class="section mx-8 lg:mx-10 w-full mb-10">
     <div>
       <h2
         class="text-2xl md:text-4xl font-semibold text-blue-800 items-left mb-0.5"
@@ -68,9 +68,10 @@
             </div>
             {% endif %}
           </div>
-          {% endfor %} {% if not isLeader %}
-          <div class="grid grid-cols-4 py-2 text-xs md:text-sm">
-            <div class="ml-4 font-light text-left">20</div>
+          {% endfor %} 
+          {% if not isLeader %}
+          <div class="grid grid-cols-4 py-2 text-xs md:text-sm border-2 border-blue-700 rounded-md">
+            <div class="ml-4 font-light text-left">{{ (rank+1) }}</div>
             <div class="-ml-5 font-light text-left">{{ username }}</div>
             <div class="font-light">{{ equity_value|usd }}</div>
             {% if net_gain_loss >= 0 %}
@@ -97,80 +98,79 @@
       {% endif %}
     </div>
   </div>
-  <!-- Leaderboard section --> 
-  <!-- End of Portfolio section -->
-</div>
-<!-- Portfolio section -->
-<div class="section md:w-4/5 gap-0 md:gap-4 container px-5 overflow-hidden">
-  <h2 class="text-xl md:text-3xl font-bold text-blue-800">
-    Portfolio Dashboard
-  </h2>
-  {% if (cash + total_share_value - 10000) > 0 %}
-  <p class="text-sm md:text-md lg:text-lg font-thin mb-4 items-left">
-    You have a total net profit so far is
-    <strong class="text-green-700"
-      >{{ (cash + total_share_value - 10000)|usd }}</strong
-    >!
-  </p>
-  {% else %}
-  <p class="text-sm md:text-md lg:text-lg font-thin mb-4 items-left">
-    Your total net loss so far is
-    <strong class="text-red-700"
-      >{{ (10000 - (cash + total_share_value))|usd }}</strong
-    >.
-  </p>
-  {% endif %}
-  <div
-    class="grid grid-cols-5 border-b-2 border-gray-300 py-2 tracking-tight text-sm md:text-base font-semibold"
-  >
-    <h5>Stock Symbol</h5>
-    <h5>No. of Shares</h5>
-    <h5>Cost of Shares</h5>
-    <h5>Current Value</h5>
-    <h5>Profit/Loss</h5>
-  </div>
-  {% for stock in portfolio %}
-  <div class="grid grid-cols-5 py-2 text-sm md:text-base">
-    <div class="font-light">{{ stock.stock }}</div>
-    <div class="font-light">{{ stock.no_of_shares }}</div>
-    <div class="font-light">{{ stock.total_cost|usd }}</div>
-    <div class="font-light">{{ stock.market_value|usd }}</div>
-    <div class="font-light font-semibold">
-      {% if stock.profit_loss < 0 %}
-      <p class="text-red-700">{{ stock.profit_loss|usd }}</p>
-      {% else %}
-      <p class="text-green-700">{{ stock.profit_loss|usd }}</p>
-      {% endif %}
+  <div class="section md:w-4/5 gap-0 md:gap-4 container px-5 overflow-hidden">
+    <h2 class="text-xl md:text-3xl font-bold text-blue-800">
+      Portfolio Dashboard
+    </h2>
+    {% if (cash + total_share_value - 10000) > 0 %}
+    <p class="text-sm md:text-md lg:text-lg font-thin mb-4 items-left">
+      You have a total net profit so far is
+      <strong class="text-green-700"
+        >{{ (cash + total_share_value - 10000)|usd }}</strong
+      >!
+    </p>
+    {% else %}
+    <p class="text-sm md:text-md lg:text-lg font-thin mb-4 items-left">
+      Your total net loss so far is
+      <strong class="text-red-700"
+        >{{ (10000 - (cash + total_share_value))|usd }}</strong
+      >.
+    </p>
+    {% endif %}
+    <div
+      class="grid grid-cols-5 border-b-2 border-gray-300 py-2 tracking-tight text-sm md:text-base font-semibold"
+    >
+      <h5>Stock Symbol</h5>
+      <h5>No. of Shares</h5>
+      <h5>Cost of Shares</h5>
+      <h5>Current Value</h5>
+      <h5>Profit/Loss</h5>
     </div>
-  </div>
-  {% endfor %}
-  <div class="finstats border-t-2 border-gray-300 pt-4 text-sm md:text-base">
-    <div class="grid grid-cols-2 py-2">
-      <div class="font-semibold">Total Share Market Value</div>
-      <div class="font-light ml-4">{{ total_share_value|usd }}</div>
-    </div>
-    <div class="grid grid-cols-2 py-2">
-      <div class="font-semibold">Remaining Cash</div>
-      <div class="font-light ml-4">{{ cash|usd }}</div>
-    </div>
-    <div class="grid grid-cols-2 py-2">
-      <div class="font-semibold">Total Equity</div>
-      <div class="font-light ml-4">{{ (cash + total_share_value)|usd }}</div>
-    </div>
-    <div class="grid grid-cols-2 py-2">
-      <div class="font-semibold">Net Gain/Loss</div>
-      <div class="font-semibold ml-4">
-        {% if (cash + total_share_value - 10000) < 0 %}
-        <p class="text-red-700">
-          {{ (cash + total_share_value - 10000)|usd }}
-        </p>
+    {% for stock in portfolio %}
+    <div class="grid grid-cols-5 py-2 text-sm md:text-base">
+      <div class="font-light">{{ stock.stock }}</div>
+      <div class="font-light">{{ stock.no_of_shares }}</div>
+      <div class="font-light">{{ stock.total_cost|usd }}</div>
+      <div class="font-light">{{ stock.market_value|usd }}</div>
+      <div class="font-light font-semibold">
+        {% if stock.profit_loss < 0 %}
+        <p class="text-red-700">{{ stock.profit_loss|usd }}</p>
         {% else %}
-        <p class="text-green-700">
-          {{ (cash + total_share_value - 10000)|usd }}
-        </p>
+        <p class="text-green-700">{{ stock.profit_loss|usd }}</p>
         {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+    <div class="finstats border-t-2 border-gray-300 pt-4 text-sm md:text-base">
+      <div class="grid grid-cols-2 py-2">
+        <div class="font-semibold">Total Share Market Value</div>
+        <div class="font-light ml-4">{{ total_share_value|usd }}</div>
+      </div>
+      <div class="grid grid-cols-2 py-2">
+        <div class="font-semibold">Remaining Cash</div>
+        <div class="font-light ml-4">{{ cash|usd }}</div>
+      </div>
+      <div class="grid grid-cols-2 py-2">
+        <div class="font-semibold">Total Equity</div>
+        <div class="font-light ml-4">{{ (cash + total_share_value)|usd }}</div>
+      </div>
+      <div class="grid grid-cols-2 py-2">
+        <div class="font-semibold">Net Gain/Loss</div>
+        <div class="font-semibold ml-4">
+          {% if (cash + total_share_value - 10000) < 0 %}
+          <p class="text-red-700">
+            {{ (cash + total_share_value - 10000)|usd }}
+          </p>
+          {% else %}
+          <p class="text-green-700">
+            {{ (cash + total_share_value - 10000)|usd }}
+          </p>
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+
 {% endblock %}

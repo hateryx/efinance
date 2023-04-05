@@ -93,11 +93,36 @@ if (exploreSelect) {
 // Add an event listener to the form's submit event
 const submitBuyBtn = document.getElementById("executeBuyBtn");
 
-if (submitBuyBtn) {
+if (submitBuyBtn){
   document
     .getElementById("executeBuyForm")
     .addEventListener("submit", function () {
       // Disable the submit button to prevent multiple submissions
       submitBuyBtn.disabled = true;
+    });
+}
+
+
+// Add an event listener to the form's submit event
+const submitSellBtn = document.getElementById("executeSellBtn");
+
+if (submitSellBtn) {
+  document
+    .getElementById("executeSellForm")
+    .addEventListener("submit", function () {
+      // Disable the submit button to prevent multiple submissions
+      submitSellBtn.disabled = true;
+    });
+}
+
+// Add an event listener to the form's submit event
+const submitRegBtn = document.getElementById("executeRegisterBtn");
+
+if (submitRegBtn) {
+  document
+    .getElementById("executeRegisterForm")
+    .addEventListener("submit", function () {
+      // Disable the submit button to prevent multiple submissions
+      submitRegBtn.disabled = true;
     });
 }

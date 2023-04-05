@@ -30,7 +30,7 @@
     <div class="section md:w-1/5 gap-0 h-8"></div>
     <div class="md:hidden w-full h-8"></div>
     <div class="flex-row w-full justify-left mt-4 md:mt-10">
-      <form action="/sell" method="post" class="mx-auto max-w-md border shadow-md rounded-lg mb-10">
+      <form action="/sell" method="post" id="executeSellForm" class="mx-auto max-w-md border shadow-md rounded-lg mb-10">
         <h2
           class="text-sm md:text-lg font-semibold text-white bg-blue-800 px-4 py-2 rounded-t-md"
         >
@@ -69,6 +69,7 @@
         </div>
         <div class="flex justify-center">
           <button
+            id="executeSellBtn"
             type="submit"
             class="bg-yellow-400 text-blue-800 border-2 border-blue-800 font-semibold py-2 px-4 rounded-full w-3/5 md:w-2/5 my-4"
           >

@@ -350,6 +350,9 @@ def portfolio():
         "SELECT username, equity_value, net_gain_loss FROM (SELECT users.username,port_ranker.equity_value,port_ranker.net_gain_loss FROM port_ranker JOIN users ON port_ranker.user_id = users.id) ORDER BY net_gain_loss DESC LIMIT 10")
     leaderboard = db.session.execute(port_ranker_query).fetchall()
 
+    port_userrank_query = text(
+        "SELECT COUNT(net_gain_loss) FROM port_ranker WHERE net_gain_loss > (SELECT net_gain_loss from port_ranker WHERE user_id = :user_id)")
+
     leaders = []
     for row in leaderboard:
         leaders.append(row[0])
@@ -358,6 +361,8 @@ def portfolio():
         rank = leaders.index(username)
     else:
         isLeader = False
+        rank = db.session.execute(port_userrank_query, {'user_id':current_user}).fetchone()
+        rank = int(rank[0])
 
     return render_template("portfolio.html", username=username, equity_value=equity_value, net_gain_loss=net_gain_loss, portfolio=stock_portfolio, cash=current_cash, total_share_value=total_share_value, leaderboard=leaderboard, isLeader=isLeader, rank=rank)
 
@@ -410,18 +415,16 @@ def quote():
         exchange = company_info["exchange"]
         website = company_info["website"]
 
-        token = str(uuid.uuid4())
 
         # return render_template("quote.html", symbol=symbol, company=company, price=price, test=company_info, current_cash=current_cash)
 
-        return render_template("quote.html", token=token, symbol=symbol, company=company, price=price, description=description, industry=industry, sector=sector, marketCap=marketCap, volume=volume, website=website, exchange=exchange, current_cash=current_cash)
+        return render_template("quote.html", symbol=symbol, company=company, price=price, description=description, industry=industry, sector=sector, marketCap=marketCap, volume=volume, website=website, exchange=exchange, current_cash=current_cash)
 
     else:
-        token = str(uuid.uuid4())
 
         stock_reco = top_performing_stocks(explore="mostactive")
 
-        return render_template("quote.html", stock_reco=stock_reco, current_cash=current_cash, token=token)
+        return render_template("quote.html", stock_reco=stock_reco, current_cash=current_cash)
 
 
 @fin_app.route("/buy", methods=["GET", "POST"])
