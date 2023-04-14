@@ -1,42 +1,49 @@
-{% extends "layout.html" %} {% block title %} {% endblock %} {% block main %}
-<div class="border grid md:grid-cols-2 gap-4">
-  <div class="section mx-8 lg:mx-10 w-full mb-10">
+{% extends "layout.html" %}
+
+{% block title %}
+    Quote
+{% endblock %}
+
+{% block main %}
+
+<div class="mt-40 flex flex-col md:grid md:grid-cols-2 gap-4 md:gap-10 w-full">
+  <div class="pl-7 lg:mx-10 min-h-screen w-full mb-10">
     <div>
       <h2
         class="text-2xl md:text-4xl font-semibold text-blue-800 items-left mb-0.5"
       >
         Hello, {{ username|capitalize }}
       </h2>
-      <p class="text-sm md:text-md lg:text-lg font-thin">
+      <p class="text-sm md:text-md lg:text-lg font-light">
         You have <strong>{{ cash|usd }}</strong> available to buy stocks.
       </p>
     </div>
     <div class="flex flex-cols my-4">
-      <p class="w-1/2 p-2 border text-xs md:text-sm shadow-md font-semibold">
-        Buy to invest now
+      <p class="w-1/2 p-2 border text-sm md:text-base lg:text-lg shadow-md font-semibold">
+        Buy stocks now
       </p>
       <a
         href="/quote"
-        class="w-1/3 text-center text-yellow-400 bg-blue-800 text-sm md:text-base hover:bg-blue-500 font-bold py-2 px-4 rounded-r-md shadow-md focus:outline-none focus:shadow-outline"
+        class="w-max text-center text-yellow-400 bg-blue-800 text-sm md:text-base lg:text-lg hover:bg-blue-500 font-bold py-2 px-4 rounded-r-md shadow-md focus:outline-none focus:shadow-outline"
       >
         Quote & Buy
       </a>
     </div>
     <div class="flex flex-cols flex my-4">
-      <p class="w-1/2 p-2 border text-xs md:text-sm shadow-md font-semibold">
+      <p class="w-1/2 p-2 border text-sm md:text-base lg:text-lg shadow-md font-semibold">
         Turn stock to cash
       </p>
-      <a
-        href="/sell"
-        class="w-1/3 text-center text-blue-800 bg-yellow-400 hover:bg-blue-500 text-sm md:text-base font-bold py-2 px-4 rounded-r-md shadow-md focus:outline-none focus:shadow-outline"
-      >
-        Sell
-      </a>
+        <a
+          href="/sell"
+          class="w-max text-center text-blue-800 bg-yellow-400 hover:bg-yellow-200 text-sm md:text-base lg:text-lg font-bold py-2 px-12 rounded-r-md shadow-md focus:outline-none focus:shadow-outline"
+        >
+          Sell
+        </a>
     </div>
-    <div class="flex lg:flex-row md:m-10 mt-10 max-w-lg overflow-hidden">
+    <div class="flex-col md:m-10 mt-10 max-w-lg overflow-hidden w-4/5">
       <!-- Leaderboard section -->
-      <div class="md:w-4/5">
-        <p class="text-sm md:text-md lg:text-lg font-thin py-3 md:py-5">
+      {% if net_gain_loss != 0 %}
+        <p class="text-sm md:text-md lg:text-lg font-light py-3 md:py-5">
           See how well you're performing compared to others.
         </p>
         <div class="border border-blue-800 shadow-md rounded-md p-3 md:p-5">
@@ -54,7 +61,7 @@
             <h5>Gain/Loss %</h5>
           </div>
           {% for each in leaderboard %}
-          <div class="grid grid-cols-4 py-2 text-xs md:text-sm">
+          <div class="grid grid-cols-4 py-2 text-xs md:text-sm {% if username == each.username %} border-2 border-blue-700 rounded-md {% endif %}">
             <div class="ml-4 font-light text-left">{{ loop.index }}</div>
             <div class="-ml-5 font-light text-left">{{ each.username }}</div>
             <div class="font-light">{{ each.equity_value|usd }}</div>
@@ -75,80 +82,141 @@
             <div class="-ml-5 font-light text-left">{{ username }}</div>
             <div class="font-light">{{ equity_value|usd }}</div>
             {% if net_gain_loss >= 0 %}
-            <div class="font-semibold text-green-800 text-left">
-              +{{ (net_gain_loss/10000)|percent }}
-            </div>
+              <div class="font-semibold text-green-800 text-left">
+                +{{ (net_gain_loss/10000)|percent }}
+              </div>
             {% else %}
-            <div class="font-semibold text-red-800 text-left">
-              {{ (net_gain_loss/10000)|percent }}
-            </div>
+              <div class="font-semibold text-red-800 text-left">
+                {{ (net_gain_loss/10000)|percent }}
+              </div>
             {% endif %}
           </div>
+          {% endif %}
         </div>
+        {% if isLeader %}
+          <p class="py-3 md:py-5 text-sm md:text-md lg:text-lg font-light mb-2 items-left">
+            Nice! You got the
+            <strong class="text-blue-600 tracking-wide p-1 font-bold"
+              >{{ (rank+1)|ordinal }}</strong
+            >
+            rank in the leaderboard!
+          </p>
+        {% else %}
+          <p class="py-3 md:py-5 text-sm md:text-md lg:text-lg font-light mb-2 items-left">
+            You got the
+            <strong class="text-blue-900 tracking-wide p-1 font-bold"
+              >{{ (rank+1)|ordinal }}</strong
+            >
+            rank among all stock novice in Investopia.
+          </p>
         {% endif %}
-      </div>
-      {% if isLeader %}
-      <p class="py-3 md:py-5 text-sm md:text-md lg:text-lg font-thin mb-2 items-left">
-        Nice! You got the
-        <strong class="text-blue-600 tracking-wide p-1 font-bold"
-          >{{ (rank+1)|ordinal }}</strong
-        >
-        rank in the leaderboard!
-      </p>
+      {% else %}
+        <div id="todoList" class="border py-5 mr-5 rounded-md shadow-md w-full bg-yellow-200">
+          <div class="w-full border-b-2 border-blue-800">
+            <h2 class="p-2 text-xl md:text-2xl font-bold text-blue-900 text-center">
+              Stock Novice TODO List
+            </h2>
+          </div>
+          <div class="grid grid-rows-3 h-80 container mt-3">
+            <div class="flex">
+              <div class="p-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 4.5l15 15m0 0V8.25m0 11.25H8.25" />
+                </svg>
+              </div>          
+              <p class="text-xs md:text-sm lg:text-md lg:text-lg font-light px-3 py-3 md:py-2">
+              Go to <a href="/quote" class="font-semibold text-blue-700"> Quote & Buy </a> to see your options and buy your first stock. Navigate list of items in the <strong>Explore</strong> section, quote the stock, and then buy.
+              </p>
+            </div>
+            <div class="flex">
+              <div class="p-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 4.5l15 15m0 0V8.25m0 11.25H8.25" />
+                </svg>
+              </div>  
+              <p class="text-xs md:text-sm lg:text-md lg:text-lg font-light px-3 py-3 md:py-2">
+                See your <strong class="font-semibold text-blue-700"> Portfolio Dashboard </strong> gets updated after buying! Track how your stocks and overall portfolio gains or losses value in real time.
+              </p>
+            </div>
+            <div class="flex">
+              <div class="p-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 4.5l15 15m0 0V8.25m0 11.25H8.25" />
+                </svg>
+              </div>          
+              <p class="text-xs md:text-sm lg:text-md lg:text-lg font-light px-3 py-3 md:py-2">
+                The <strong class="font-semibold text-blue-700"> Leaderboard </strong> will show up once your stocks change market values. From there, you'll know how you're performing compared to others.
+              </p>
+            </div>
+          </div>
+        </div>
       {% endif %}
     </div>
   </div>
-  <div class="section md:w-4/5 gap-0 md:gap-4 container px-5 overflow-hidden">
+  <div class="section md:w-full gap-0 md:gap-4 container px-5 overflow-hidden min-h-screen">
     <h2 class="text-xl md:text-3xl font-bold text-blue-800">
       Portfolio Dashboard
     </h2>
     {% if (cash + total_share_value - 10000) > 0 %}
-    <p class="text-sm md:text-md lg:text-lg font-thin mb-4 items-left">
-      You have a total net profit so far is
-      <strong class="text-green-700"
-        >{{ (cash + total_share_value - 10000)|usd }}</strong
-      >!
-    </p>
+      <p class="text-sm md:text-md lg:text-lg font-light mb-4 items-left">
+        You have a total net profit so far is
+        <strong class="text-green-700"
+          >{{ (cash + total_share_value - 10000)|usd }}</strong
+        >!
+      </p>
+    {% elif (cash + total_share_value - 10000) < 0  %}
+      <p class="text-sm md:text-md lg:text-lg font-light mb-4 items-left">
+        Your total net loss so far is
+        <strong class="text-red-700"
+          >{{ (10000 - (cash + total_share_value))|usd }}</strong
+        >.
+      </p>
     {% else %}
-    <p class="text-sm md:text-md lg:text-lg font-thin mb-4 items-left">
-      Your total net loss so far is
-      <strong class="text-red-700"
-        >{{ (10000 - (cash + total_share_value))|usd }}</strong
-      >.
-    </p>
+      <p class="text-sm md:text-md lg:text-lg font-light mb-4 items-left">
+        This section is where you're supposed to track your stock portfolio.
+      </p>
     {% endif %}
-    <div
-      class="grid grid-cols-5 border-b-2 border-gray-300 py-2 tracking-tight text-sm md:text-base font-semibold"
-    >
-      <h5>Stock Symbol</h5>
-      <h5>No. of Shares</h5>
-      <h5>Cost of Shares</h5>
-      <h5>Current Value</h5>
-      <h5>Profit/Loss</h5>
-    </div>
-    {% for stock in portfolio %}
-    <div class="grid grid-cols-5 py-2 text-sm md:text-base">
-      <div class="font-light">{{ stock.stock }}</div>
-      <div class="font-light">{{ stock.no_of_shares }}</div>
-      <div class="font-light">{{ stock.total_cost|usd }}</div>
-      <div class="font-light">{{ stock.market_value|usd }}</div>
-      <div class="font-light font-semibold">
-        {% if stock.profit_loss < 0 %}
-        <p class="text-red-700">{{ stock.profit_loss|usd }}</p>
-        {% else %}
-        <p class="text-green-700">{{ stock.profit_loss|usd }}</p>
-        {% endif %}
+
+    {% if portfolio %}
+      <div class="border-t-2 border-b-2 border-blue-800 py-4">
+        <div
+          class="grid grid-cols-5 border-b-2 border-gray-300 py-2 tracking-tight text-sm md:text-base font-semibold"
+        >
+          <h5>Stock Symbol</h5>
+          <h5>No. of Shares</h5>
+          <h5>Cost of Shares</h5>
+          <h5>Current Value</h5>
+          <h5>Profit/Loss</h5>
+        </div>
+        {% for stock in portfolio %}
+        <div class="grid grid-cols-5 py-2 text-sm md:text-base">
+          <div class="font-light">{{ stock.stock }}</div>
+          <div class="font-light">{{ stock.no_of_shares }}</div>
+          <div class="font-light">{{ stock.total_cost|usd }}</div>
+          <div class="font-light">{{ stock.market_value|usd }}</div>
+          <div class="font-light font-semibold">
+            {% if stock.profit_loss < 0 %}
+            <p class="text-red-700">{{ stock.profit_loss|usd }}</p>
+            {% else %}
+            <p class="text-green-700">{{ stock.profit_loss|usd }}</p>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
       </div>
-    </div>
-    {% endfor %}
-    <div class="finstats border-t-2 border-gray-300 pt-4 text-sm md:text-base">
+    {% else %}
+      <p class="text-sm md:text-md lg:text-lg font-light py-5 items-left border-t-2 border-b-2 border-blue-800">
+         You do not own any stocks yet. <br>Go to <a href="/quote" class="font-semibold text-blue-700"> Quote & Buy </a> to start practice trading.
+      </p>
+    {% endif %}
+    <div class="finstats pt-4 text-sm md:text-base">
       <div class="grid grid-cols-2 py-2">
         <div class="font-semibold">Total Share Market Value</div>
         <div class="font-light ml-4">{{ total_share_value|usd }}</div>
       </div>
       <div class="grid grid-cols-2 py-2">
         <div class="font-semibold">Remaining Cash</div>
-        <div class="font-light ml-4">{{ cash|usd }}</div>
+        <div class="font-light ml-4">{{ cash|usd   }}</div>
       </div>
       <div class="grid grid-cols-2 py-2">
         <div class="font-semibold">Total Equity</div>
@@ -171,6 +239,5 @@
     </div>
   </div>
 </div>
-
 
 {% endblock %}

@@ -12,7 +12,7 @@ button.addEventListener("click", () => {
   const largeScreenClass =
     "hidden md:flex md:space-x-8 font-semibold text-grey-200 hover:text-blue-800";
   const smallScreenClass =
-    "absolute mt-24 border-t-2 z-0 inset-0 min-h-screen bg-yellow-300 place-items-center flex flex-col md:space-x-8 text-blue-900 space-y-10 py-20";
+    "absolute mt-28 border-t-4 border-blue-800 z-0 inset-0 min-h-screen bg-yellow-300 place-items-center flex flex-col md:space-x-8 text-blue-900 space-y-10 py-20";
 
   if (!expanded) {
     menu_open_icon.classList.add("hidden");
@@ -78,9 +78,9 @@ if (exploreSelect) {
         tip_p1.textContent = mootley_tip_p1;
         tip_p2.textContent = mootley_tip_p2;
         break;
-      case "infocus":
-        tip_p1.textContent = infocus_tip_p1;
-        tip_p2.textContent = infocus_tip_p2;
+      case "losers":
+        tip_p1.textContent = losers_tip_p1;
+        tip_p2.textContent = losers_tip_p2;
         break;
       case "gainers":
         tip_p1.textContent = gainers_tip_p1;
@@ -93,7 +93,7 @@ if (exploreSelect) {
 // Add an event listener to the form's submit event
 const submitBuyBtn = document.getElementById("executeBuyBtn");
 
-if (submitBuyBtn){
+if (submitBuyBtn) {
   document
     .getElementById("executeBuyForm")
     .addEventListener("submit", function () {
@@ -101,7 +101,6 @@ if (submitBuyBtn){
       submitBuyBtn.disabled = true;
     });
 }
-
 
 // Add an event listener to the form's submit event
 const submitSellBtn = document.getElementById("executeSellBtn");

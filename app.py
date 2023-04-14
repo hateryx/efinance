@@ -1,9 +1,8 @@
-import os
-import datetime
 import sys
-import uuid
+import json
+import datetime
 
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Flask, redirect, render_template, request, session
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text, func, cast, Integer
@@ -11,9 +10,12 @@ from sqlalchemy import text, func, cast, Integer
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, login_required, lookup, company_lookup, usd, percent, millions, top_performing_stocks, ordinal
+from helpers import apology, login_required, lookup, company_lookup, usd, percent, millions, top_performing_stocks, ordinal, get_symbol, get_qty, isMarketOpen
 
 from dotenv import load_dotenv
+
+global MARKET_STATUS
+MARKET_STATUS = isMarketOpen()
 
 load_dotenv()
 
@@ -93,13 +95,17 @@ class port_ranker(db.Model):
     port_update_date = db.Column(db.Date)
     equity_value = db.Column(db.Integer, nullable=False)
     net_gain_loss = db.Column(db.Integer, nullable=False)
+    owned_stocks = db.Column(db.String)
+    latest_cash = db.Column(db.Integer)
 
-    def __init__(self, p_r_id, user_id,  port_update_date, equity_value, net_gain_loss):
+    def __init__(self, p_r_id, user_id,  port_update_date, equity_value, net_gain_loss, owned_stocks, latest_cash):
         self.p_r_id = p_r_id
         self.user_id = user_id
         self.port_update_date = port_update_date
         self.equity_value = equity_value
         self.net_gain_loss = net_gain_loss
+        self.owned_stocks = owned_stocks
+        self.latest_cash = latest_cash
 
 
 def inquire_username(current_user):
@@ -117,7 +123,7 @@ def inquire_latest_cash(current_user):
         "SELECT cash_end_bal FROM cash_running_bal WHERE user_id = :user_id AND c_bal_id = (SELECT MAX(c_bal_id) FROM cash_running_bal WHERE user_id = :user_id)")
     cash_latest_bal = db.session.execute(
         cash_query, {'user_id': current_user}).fetchone()
-    current_cash = int(cash_latest_bal[0])
+    current_cash = float(cash_latest_bal[0])
 
     return current_cash
 
@@ -164,7 +170,7 @@ def inquire_portfolio(current_user):
 
             market_details = lookup(each["symbol"])
             market_price = each["no_of_shares_now_held"] * \
-                int(market_details["price"])
+                float(market_details["price"])
 
             stock_stats["stock"] = each["symbol"]
             stock_stats["no_of_shares"] = each["no_of_shares_now_held"]
@@ -177,6 +183,48 @@ def inquire_portfolio(current_user):
             stock_portfolio.append(stock_stats)
 
     return stock_portfolio
+
+
+def update_usersPortValue():
+
+    port_ranker_query = text(
+        "SELECT user_id, owned_stocks, latest_cash FROM port_ranker")
+    query_result = db.session.execute(port_ranker_query).fetchall()
+    users_stock_dict_list = []
+    port_ranker_update = text(
+        "UPDATE port_ranker SET equity_value = :equity_value, net_gain_loss = :net_gain_loss WHERE user_id = :user_id")
+
+    for row in query_result:
+        current_market_value = 0
+
+        user = row[0]
+        stock_holding_info = row[1]
+        latest_cash = float(row[2])
+
+        # assuming the stocks held are more than 1
+        if stock_holding_info:
+            all_stock_subset = stock_holding_info.split(",")
+
+            for elem in all_stock_subset:
+                stock_and_qty = elem.split(":")
+                stock = get_symbol(stock_and_qty[0])
+                qty = int(get_qty(stock_and_qty[1]))
+
+                stock_info = lookup(stock)
+                compute_stock_value = stock_info['price'] * qty
+                current_market_value += compute_stock_value
+
+            current_equity_value = latest_cash+current_market_value
+
+            db.session.execute(port_ranker_update, {"user_id": user,
+                                                    "equity_value": current_equity_value, "net_gain_loss": (current_equity_value-10000)})
+
+            # users_stock_dict_list.append({
+            #     "user_id": user,
+            #     "market_value": current_market_value,
+            #     "total_equity": (latest_cash+current_market_value)
+            # })
+    db.session.commit()
 
 
 @fin_app.after_request
@@ -194,9 +242,9 @@ def index():
         if session["user_id"]:
             return redirect("/portfolio")
         else:
-            return render_template("index.html")
+            return render_template("index.html", isMarketOpen=MARKET_STATUS)
     except KeyError:
-        return render_template("index.html")
+        return render_template("index.html", isMarketOpen=MARKET_STATUS)
 
 
 @fin_app.route("/register", methods=["GET", "POST"])
@@ -247,7 +295,7 @@ def register():
                                                      'txn_date': txn_date, 'amount_change': 10000, 'cash_end_bal': 10000})
 
             port_ranker_insert = text(
-                "INSERT INTO port_ranker (user_id, port_update_date, equity_value, net_gain_loss) VALUES (:user_id, :port_update_date, 10000, 0)")
+                "INSERT INTO port_ranker (user_id, port_update_date, equity_value, net_gain_loss, latest_cash) VALUES (:user_id, :port_update_date, 10000, 0, 10000)")
 
             db.session.execute(port_ranker_insert, {'user_id': current_user_id,
                                                     'port_update_date': txn_date})
@@ -260,7 +308,7 @@ def register():
         return redirect("/login")
 
     else:
-        return render_template("register.html")
+        return render_template("register.html", isMarketOpen=MARKET_STATUS)
 
 
 @fin_app.route("/login", methods=["GET", "POST"])
@@ -270,7 +318,6 @@ def login():
     # Forget any user_id
     session.clear()
 
-    # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
 
         # Ensure username was submitted
@@ -282,7 +329,6 @@ def login():
             return apology("must provide password", 403)
 
         username = request.form.get("username")
-
         rows = users.query.filter_by(username=username).all()
 
         # Ensure username exists and password is correct
@@ -292,15 +338,13 @@ def login():
         # Remember which user has logged in
         session["user_id"] = rows[0].id
 
-        greetings = f"Welcome to index, {username}!"
-
         # Redirect user to home page
 
         return redirect("/portfolio")
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
-        return render_template("login.html")
+        return render_template("login.html", isMarketOpen=MARKET_STATUS)
 
 
 @fin_app.route("/logout")
@@ -314,6 +358,20 @@ def logout():
     return redirect("/")
 
 
+@fin_app.route('/refresh')
+@login_required
+def refresh():
+    try:
+        update_usersPortValue()
+        checkMarketOpen = isMarketOpen()
+        global MARKET_STATUS
+        MARKET_STATUS = checkMarketOpen
+    except Exception:
+        return apology("Server is having issues.")
+
+    return redirect("/portfolio")
+
+
 @fin_app.route('/portfolio')
 @login_required
 def portfolio():
@@ -324,9 +382,13 @@ def portfolio():
 
     try:
         stock_portfolio = inquire_portfolio(current_user)
+        owned_stock_list = []
+
         total_share_value = 0
         for each in stock_portfolio:
             total_share_value += each["market_value"]
+            owned_stock_list.append(
+                json.dumps({each["stock"]: each["no_of_shares"]}))
 
     except Exception:
         return apology("Either the API key is not valid or the API service provider is having issues.")
@@ -335,12 +397,13 @@ def portfolio():
     equity_value = total_share_value + current_cash
     net_gain_loss = equity_value - 10000
     txn_date = current_datetime.strftime('%m/%d/%Y %H:%M:%S')
+    owned_stocks = " ,".join(owned_stock_list) or None
 
     try:
         port_ranker_update = text(
-            "UPDATE port_ranker SET port_update_date = :port_update_date, equity_value = :equity_value, net_gain_loss = :net_gain_loss WHERE user_id = :user_id")
+            "UPDATE port_ranker SET port_update_date = :port_update_date, equity_value = :equity_value, net_gain_loss = :net_gain_loss, owned_stocks = :owned_stocks, latest_cash = :latest_cash WHERE user_id = :user_id")
         db.session.execute(port_ranker_update, {
-            'user_id': current_user, 'port_update_date': txn_date, 'equity_value': equity_value, 'net_gain_loss': net_gain_loss})
+            'user_id': current_user, 'port_update_date': txn_date, 'equity_value': equity_value, 'net_gain_loss': net_gain_loss, 'owned_stocks': owned_stocks, 'latest_cash': current_cash})
     except Exception:
         return apology("Server is having issues.")
 
@@ -361,10 +424,17 @@ def portfolio():
         rank = leaders.index(username)
     else:
         isLeader = False
-        rank = db.session.execute(port_userrank_query, {'user_id':current_user}).fetchone()
+        rank = db.session.execute(port_userrank_query, {
+                                  'user_id': current_user}).fetchone()
         rank = int(rank[0])
 
-    return render_template("portfolio.html", username=username, equity_value=equity_value, net_gain_loss=net_gain_loss, portfolio=stock_portfolio, cash=current_cash, total_share_value=total_share_value, leaderboard=leaderboard, isLeader=isLeader, rank=rank)
+    global MARKET_STATUS
+    try:
+        MARKET_STATUS = isMarketOpen()
+    except Exception:
+        pass
+
+    return render_template("portfolio.html", isMarketOpen=MARKET_STATUS, username=username, equity_value=equity_value, net_gain_loss=net_gain_loss, portfolio=stock_portfolio, cash=current_cash, total_share_value=total_share_value, leaderboard=leaderboard, isLeader=isLeader, rank=rank)
 
 
 @fin_app.route("/explore", methods=['POST'])
@@ -415,19 +485,18 @@ def quote():
         exchange = company_info["exchange"]
         website = company_info["website"]
 
-
         # return render_template("quote.html", symbol=symbol, company=company, price=price, test=company_info, current_cash=current_cash)
 
-        return render_template("quote.html", symbol=symbol, company=company, price=price, description=description, industry=industry, sector=sector, marketCap=marketCap, volume=volume, website=website, exchange=exchange, current_cash=current_cash)
+        return render_template("quote.html", isMarketOpen=MARKET_STATUS, symbol=symbol, company=company, price=price, description=description, industry=industry, sector=sector, marketCap=marketCap, volume=volume, website=website, exchange=exchange, current_cash=current_cash)
 
     else:
 
         stock_reco = top_performing_stocks(explore="mostactive")
 
-        return render_template("quote.html", stock_reco=stock_reco, current_cash=current_cash)
+        return render_template("quote.html", isMarketOpen=MARKET_STATUS, stock_reco=stock_reco, current_cash=current_cash)
 
 
-@fin_app.route("/buy", methods=["GET", "POST"])
+@fin_app.route("/buy", methods=["POST"])
 @login_required
 def buy():
     """Buy shares of stock"""
@@ -436,12 +505,6 @@ def buy():
     current_cash = inquire_latest_cash(current_user)
 
     if request.method == "POST":
-        token = request.form.get("token")
-
-        if token in session.get('used_tokens', []):
-            return redirect("/")
-        else:
-            session.setdefault('used_tokens', []).append(token)
 
         buying_stock = request.form.get("symbol")
         no_of_shares = request.form.get("shares")
@@ -496,9 +559,6 @@ def buy():
 
         return redirect("/")
 
-    else:
-        return render_template("buy.html", cash=current_cash)
-
 
 @fin_app.route("/history")
 @login_required
@@ -514,7 +574,7 @@ def history():
     cash_history = db.session.execute(text(
         "SELECT * FROM (SELECT * FROM cash_running_bal JOIN stock_txn ON cash_running_bal.txn_id = stock_txn.txn_id) WHERE user_id = :current_user"), {'current_user': current_user})
 
-    return render_template("history.html", transactions=transactions, cash_history=cash_history)
+    return render_template("history.html", isMarketOpen=MARKET_STATUS, transactions=transactions, cash_history=cash_history)
 
 
 @fin_app.route("/sell", methods=["GET", "POST"])
@@ -594,7 +654,7 @@ def sell():
         return redirect("/portfolio")
     else:
 
-        return render_template("sell.html", portfolio=stock_holdings, stock_owned=stock_owned)
+        return render_template("sell.html", isMarketOpen=MARKET_STATUS, portfolio=stock_holdings, stock_owned=stock_owned)
 
 
 conn.close()

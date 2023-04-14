@@ -8,29 +8,27 @@
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css"
       rel="stylesheet"
     />
-    <link
-      href="/static/css/exp.css"
-      rel="stylesheet"
-    />
+    <link href="/static/css/exp.css" rel="stylesheet" />
 
     <script src="/static/js/ui-helpers.js" defer></script>
-
-    <title>Investopia - A Stock Novice Quest {% block title %}{% endblock %}</title>
+    <title>
+      Investopia - A Stock Novice Quest {% block title %}{% endblock %}
+    </title>
   </head>
   <body>
-    <header
-      class="bg-blue-900 py-7 px-8 flex justify-between items-center border-b-2 border-gray-300 z-5"
-      class="bg-blue-900 py-7 px-8 flex justify-between items-center border-b-2 border-gray-300 z-5"
-    >
-      <div>
-        <a
-          href="/"
-          class="text-xl md:text-3xl font-bold text-yellow-400 tracking-widest"
-          >Investopia!</a
-        >
-        <p class="text-xs md:text-sm text-gray-100">A Stock Novice Quest</p>
-      </div>
-      <nav class="md:ml-auto z-1">
+    <header class="fixed bg-blue-900 pt-7 top-0 inset-x-0 w-full z-5">
+      <div
+        class="px-8 flex justify-between items-center"
+      >
+        <div class="relative">
+          <a
+            href="/refresh"
+            class="text-xl md:text-3xl font-bold text-yellow-400 tracking-widest"
+            >Investopia!</a
+          >
+          <p class="text-xs md:text-sm text-gray-100 pb-1">A Stock Novice Quest</p>
+        </div>
+        
         <div class="flex md:hidden">
           <button
             type="button"
@@ -64,13 +62,11 @@
               />
             </svg>
           </button>
-          <button type="button"></button>
         </div>
         <ul
           id="show"
           class="hidden md:flex md:space-x-8 text-white font-semibold text-lg tracking-widest"
         >
-          <!--  -->
           {% if session["user_id"] %}
           <li>
             <a href="/portfolio" class="hover:text-yellow-400">Portfolio</a>
@@ -78,27 +74,23 @@
           <li>
             <a href="/quote" class="hover:text-yellow-400">Quote &amp; Buy</a>
           </li>
-          <li>
-            <a href="/sell" class="hover:text-yellow-400">Sell</a>
-          </li>
+          <li><a href="/sell" class="hover:text-yellow-400">Sell</a></li>
           <li>
             <a href="/history" class="hover:text-yellow-400">History</a>
           </li>
-          <li>
-            <a href="/logout" class="hover:text-red-400">Log Out</a>
-          </li>
+          <li><a href="/logout" class="hover:text-red-400">Log Out</a></li>
           {% else %}
           <li>
             <a href="/register" class="hover:text-yellow-400">Register</a>
           </li>
-          <li>
-            <a href="/login" class="hover:text-yellow-400">Log In</a>
-          </li>
+          <li><a href="/login" class="hover:text-yellow-400">Log In</a></li>
           {% endif %}
         </ul>
-      </nav>
+    </div> 
+    <div class="z-5 font-semibold px-4 md:px-8 mt-3 py-1 block text-xs md:text-sm bg-yellow-400">{{ isMarketOpen }}</div>
     </header>
+    
 
-  <main class="mx-auto my-6">{% block main %}{% endblock %}</main>
+    <main>{% block main %}{% endblock %}</main>
   </body>
 </html>

@@ -1,12 +1,12 @@
 {% extends "layout.html" %} {% block title %} Quote {% endblock %} {% block main
 %}
-<!-- x -->
-<div class="flex flex-col md:flex-row m-6 md:m-10 mt-10">
+
+<div class="flex flex-col md:flex-row mt-40">
   <div class="section md:w-1/5 gap-0 h-0 md:h-8"></div>
   <div class="section md:w-3/5 gap-0 md:gap-4 border shadow-lg rounded-lg">
-    <h2 class="text-xl md:text-2xl font-bold py-2 text-blue-800 text-center pt-4 md:py-5">Dashboard</h2>
+    <h2 class="text-2xl md:text-3xl font-bold py-2 text-blue-800 text-center pt-4 md:py-5">Dashboard</h2>
     <div
-      class="grid grid-cols-4 border-t-2 border-b-2 border-blue-400 tracking-tight text-xs md:text-base font-semibold text-center"
+      class="grid grid-cols-4 border-t-2 border-b-2 border-blue-400 tracking-tight text-base md:text-lg font-semibold text-center"
     >
       <h5>Stock Symbol</h5>
       <h5>No. of Shares</h5>
@@ -14,7 +14,7 @@
       <h5>Profit/Loss</h5>
     </div>
     {% for stock in portfolio %}
-    <div class="grid grid-cols-4 py-2 text-xs md:text-base text-center">
+    <div class="grid grid-cols-4 py-2 text-base md:text-lg text-center">
       <div class="font-semibold">{{ stock.stock }}</div>
       <div class="font-light">{{ stock.no_of_shares }}</div>
       <div class="font-light">{{ stock.market_value|usd }}</div>
@@ -79,8 +79,5 @@
       </form>
     </div>
   </div>
-  <!-- x -->
-
-  <!-- x -->
   {% endblock %}
 </div>

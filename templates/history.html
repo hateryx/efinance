@@ -1,6 +1,6 @@
-{% extends "layout.html" %} {% block title %} List of Users {% endblock %} {%
+{% extends "layout.html" %} {% block title %} Transactions {% endblock %} {%
 block main %}
-<div class="flex justify-center min-h-screen mt-8 ml-5">
+<div class="flex justify-center min-h-screen mt-40 ml-5">
   <div class="bg-white shadow-md rounded-lg overflow-x-auto">
     <div class="flex justify-center items-center px-6 py-4">
       <h2 class="text-lg font-semibold text-gray-700">Transaction History</h2>
@@ -20,6 +20,7 @@ block main %}
             <p>No. of</p>
             <p>Shares</p>
           </th>
+          <th class="py-3 px-3">Price per Share</th>
           <th class="py-3 px-3">Type</th>
           <th class="py-3 px-6 text-xs">
             <p>Transaction</p>
@@ -37,6 +38,11 @@ block main %}
           <td class="py-3 px-6 text-xs">{{ each.txn_date }}</td>
           <td class="py-3 px-3">{{ each.stock }}</td>
           <td class="py-3 px-6">{{ each.no_of_shares }}</td>
+          {% if each.amount_change >= 0 %}
+            <td class="py-3 px-6">{{ ((each.amount_change)/each.no_of_shares)|usd }}</td>
+          {% else %}
+            <td class="py-3 px-6">{{ ((each.amount_change*-1)/each.no_of_shares)|usd }}</td>
+          {% endif %}
           <td class="py-3 px-3">
             {{ each.txn_type }}
             <!-- <td class="py-3 px-6">{{ each.amount_change|usd }}</td> -->
@@ -44,9 +50,9 @@ block main %}
 
           <td class="py-3 px-6">
             {% if each.amount_change < 0 %}
-            <p class="text-red-700">{{ each.amount_change|usd }}</p>
+            <p class="text-red-700">-{{ (each.amount_change*-1)|usd }}</p>
             {% else %}
-            <p class="text-green-700">{{ each.amount_change|usd }}</p>
+            <p class="text-green-700">+{{ each.amount_change|usd }}</p>
             {% endif %}
           </td>
           <td class="py-3 px-2">{{ each.cash_end_bal|usd }}</td>
@@ -54,6 +60,7 @@ block main %}
         {% endfor %}
       </tbody>
     </table>
+    {{ test }}
   </div>
 </div>
 
