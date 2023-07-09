@@ -91,6 +91,19 @@ if (exploreSelect) {
 }
 
 // Add an event listener to the form's submit event
+const submitLoginBtn = document.getElementById("loginBtn");
+
+if (submitLoginBtn) {
+  document
+    .getElementById("loginForm")
+    .addEventListener("submit", function () {
+      // Disable the submit button to prevent multiple submissions
+      submitLoginBtn.disabled = true;
+    });
+}
+
+
+// Add an event listener to the form's submit event
 const submitBuyBtn = document.getElementById("executeBuyBtn");
 
 if (submitBuyBtn) {

@@ -190,7 +190,6 @@ def update_usersPortValue():
     port_ranker_query = text(
         "SELECT user_id, owned_stocks, latest_cash FROM port_ranker")
     query_result = db.session.execute(port_ranker_query).fetchall()
-    users_stock_dict_list = []
     port_ranker_update = text(
         "UPDATE port_ranker SET equity_value = :equity_value, net_gain_loss = :net_gain_loss WHERE user_id = :user_id")
 
@@ -337,6 +336,8 @@ def login():
 
         # Remember which user has logged in
         session["user_id"] = rows[0].id
+
+        update_usersPortValue()
 
         # Redirect user to home page
 
