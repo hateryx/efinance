@@ -4,20 +4,24 @@
 {% endblock %}
 
 {% block main %}
-<div class="container mx-auto pt-32">
+<div class="mx-auto pt-40 container">
     <!-- Hero section -->
     <section class="bg-gray-100 py-20">
         <div class="max-w-5xl min-h-3xl mx-auto px-6">
-          <div class="flex flex-col md:flex-row items-center justify-between">
+          <div class="flex flex-col md:flex-row items-center justify-between mx-auto gap-20">
             <div class="md:w-1/2 mb-8 md:mb-0">
               <h1 class="text-4xl font-bold text-blue-800 pb-4">Learn Stock Trading with <span class="text-yellow-400 tracking-wider">Investopia!</span></h1>
               <p class="text-gray-800 leading-loose pb-6">Get hands-on experience with our realistic stock trading simulator and educational resources. Whether you're a beginner or an experienced trader, Investopia has everything you need to succeed in the stock market.</p>
-              <div class="py-2 px-4 border">Helpful Reminder</div>
-              <div class="pb-4 px-4 border">
-                <div class="text-gray-800 leading-loose pb-4 font-semibold">Even if the market is closed, you can still buy and sell stocks here for simulation and educational purposes.</div>
-                <div class="pb-4 leading-loose font-semibold pb-4"> Keep in mind though that in the real world, stocks can only be traded if the market is open. </div>
-              </div>
               <a href="/register" class="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-600 transition-colors duration-300">Get Started</a>
+              <div class="my-10 border-2 border-blue-800">
+                <div class="py-2 px-4 border-2 border-blue-800 bg-blue-800">
+                  <p class="font-bold text-yellow-400">Helpful Reminder</p>
+                </div>
+                <div class="pb-4 px-4 border leading-loose">
+                  <div class="text-gray-800 py-4">Even if the market is closed, you can still buy and sell stocks here for simulation and educational purposes.</div>
+                  <div class="pb-4 pb-4"> Keep in mind though that in the real world, stocks can only be traded if the market is open. </div>
+                </div>
+              </div>
             </div>
             <div class="md:w-1/2">
               <img src="static/assets/hero-image.svg" alt="Stock Trading Image" class="w-full h-auto">

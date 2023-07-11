@@ -1,96 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
-    <link href="/static/css/exp.css" rel="stylesheet" />
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css"
+            rel="stylesheet"
+        />
+        <link href="/static/css/exp.css" rel="stylesheet" />
 
-    <script src="/static/js/ui-helpers.js" defer></script>
-    <title>
-      Investopia - A Stock Novice Quest {% block title %}{% endblock %}
-    </title>
-  </head>
-  <body>
-    <header class="fixed bg-blue-900 pt-7 top-0 inset-x-0 w-full z-5">
-      <div
-        class="px-8 flex justify-between items-center"
-      >
-        <div class="relative">
-          <a
-            href="/refresh"
-            class="text-xl md:text-3xl font-bold text-yellow-400 tracking-widest"
-            >Investopia!</a
-          >
-          <p class="text-xs md:text-sm text-gray-100 pb-1">A Stock Novice Quest</p>
-        </div>
-        
-        <div class="flex md:hidden">
-          <button
-            type="button"
-            class="collapse-button text-gray-100 hover:text-gray-200 focus:outline-none focus:text-gray-200"
-            aria-label="Toggle menu"
-            aria-expanded="false"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              id="menu-opener"
-              class="h-6 w-6 fill-current"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M4 6h16v2H4zm0 5h16v2H4zm16 4H4v2h16z"
-              />
-            </svg>
-            <svg
-              id="menu-closer"
-              class="w-6 h-6 hidden"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="white"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-        <ul
-          id="show"
-          class="hidden md:flex md:space-x-8 text-white font-semibold text-lg tracking-widest"
-        >
-          {% if session["user_id"] %}
-          <li>
-            <a href="/portfolio" class="hover:text-yellow-400">Portfolio</a>
-          </li>
-          <li>
-            <a href="/quote" class="hover:text-yellow-400">Quote &amp; Buy</a>
-          </li>
-          <li><a href="/sell" class="hover:text-yellow-400">Sell</a></li>
-          <li>
-            <a href="/history" class="hover:text-yellow-400">History</a>
-          </li>
-          <li><a href="/logout" class="hover:text-red-400">Log Out</a></li>
-          {% else %}
-          <li>
-            <a href="/register" class="hover:text-yellow-400">Register</a>
-          </li>
-          <li><a href="/login" class="hover:text-yellow-400">Log In</a></li>
-          {% endif %}
-        </ul>
-    </div> 
-    <div class="z-5 font-semibold px-4 md:px-8 mt-3 py-1 block text-xs md:text-sm bg-yellow-400">{{ isMarketOpen }}</div>
-    </header>
-    
+        <script src="/static/js/ui-helpers.js" defer></script>
+        <title>
+            Investopia - A Stock Novice Quest {% block title %}{% endblock %}
+        </title>
+    </head>
+    <body>
+        <header class="fixed bg-blue-900 pt-7 top-0 inset-x-0 w-full z-5">
+            <div class="px-8 flex justify-between items-center">
+                <div class="relative">
+                    <a
+                        href="/refresh"
+                        class="text-xl md:text-3xl font-bold text-yellow-400 tracking-widest"
+                        >Investopia!</a
+                    >
+                    <p class="text-xs md:text-sm text-gray-100 pb-1">
+                        A Stock Novice Quest
+                    </p>
+                </div>
 
-    <main>{% block main %}{% endblock %}</main>
-  </body>
+                <div class="flex md:hidden">
+                    <button
+                        type="button"
+                        class="collapse-button text-gray-100 hover:text-gray-200 focus:outline-none focus:text-gray-200"
+                        aria-label="Toggle menu"
+                        aria-expanded="false"
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            id="menu-opener"
+                            class="h-6 w-6 fill-current"
+                        >
+                            <path
+                                fill-rule="evenodd"
+                                d="M4 6h16v2H4zm0 5h16v2H4zm16 4H4v2h16z"
+                            />
+                        </svg>
+                        <svg
+                            id="menu-closer"
+                            class="w-6 h-6 hidden"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.5"
+                            stroke="white"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M6 18L18 6M6 6l12 12"
+                            />
+                        </svg>
+                    </button>
+                </div>
+                <ul
+                    id="show"
+                    class="hidden md:flex md:space-x-8 text-white font-semibold text-lg tracking-widest"
+                >
+                    {% if session["user_id"] %}
+                    <li>
+                        <a href="/portfolio" class="hover:text-yellow-400"
+                            >Portfolio</a
+                        >
+                    </li>
+                    <li>
+                        <a href="/quote" class="hover:text-yellow-400"
+                            >Quote &amp; Buy</a
+                        >
+                    </li>
+                    <li>
+                        <a href="/sell" class="hover:text-yellow-400">Sell</a>
+                    </li>
+                    <li>
+                        <a href="/history" class="hover:text-yellow-400"
+                            >History</a
+                        >
+                    </li>
+                    <li>
+                        <a href="/logout" class="hover:text-red-400">Log Out</a>
+                    </li>
+                    {% else %}
+                    <li>
+                        <a href="/register" class="hover:text-yellow-400"
+                            >Register</a
+                        >
+                    </li>
+                    <li>
+                        <a href="/login" class="hover:text-yellow-400"
+                            >Log In</a
+                        >
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div
+                class="z-5 font-semibold px-4 md:px-8 mt-3 py-1 block text-xs md:text-sm bg-yellow-400"
+            >
+                {{ isMarketOpen }}
+            </div>
+        </header>
+        <main>{% block main %} {% endblock %}</main>
+    </body>
 </html>
