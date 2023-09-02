@@ -2,3 +2,5 @@
 archive
 __pycache__
 __instance__
+flask_session
+efinance

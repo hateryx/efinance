@@ -3,3 +3,4 @@ SQLAlchemy
 flask_sqlalchemy
 python-dotenv
 flask_session
+requests
