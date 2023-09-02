@@ -46,7 +46,8 @@ def lookup(symbol):
     # Contact API
     try:
         api_key = os.getenv("API_KEY")
-        url = f"https://cloud.iexapis.com/stable/stock/{urllib.parse.quote_plus(symbol)}/quote?token={api_key}"
+        # url = f"https://cloud.iexapis.com/stable/stock/{urllib.parse.quote_plus(symbol)}/quote?token={api_key}"
+        url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={api_key}"
         response = requests.get(url)
         response.raise_for_status()
     except requests.RequestException:

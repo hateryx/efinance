@@ -193,6 +193,8 @@ def update_usersPortValue():
     port_ranker_update = text(
         "UPDATE port_ranker SET equity_value = :equity_value, net_gain_loss = :net_gain_loss WHERE user_id = :user_id")
 
+    print(query_result)
+
     for row in query_result:
         current_market_value = 0
 
