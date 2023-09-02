@@ -94,7 +94,7 @@ def company_lookup(symbol):
 
 def isMarketOpen():
     try:
-        api_key = "WQ5NQPVZ7RWZB7PF"
+        api_key = os.getenv("API_KEY")
         url = f'https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=SPY&interval=60min&apikey={api_key}'
         response = requests.get(url)
         response.raise_for_status()
