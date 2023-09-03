@@ -339,7 +339,7 @@ def login():
         # Remember which user has logged in
         session["user_id"] = rows[0].id
 
-        update_usersPortValue()
+        # update_usersPortValue()
 
         # Redirect user to home page
 
@@ -494,9 +494,10 @@ def quote():
 
     else:
 
-        stock_reco = top_performing_stocks(explore="mostactive")
+        # stock_reco = top_performing_stocks(explore="mostactive")
 
-        return render_template("quote.html", isMarketOpen=MARKET_STATUS, stock_reco=stock_reco, current_cash=current_cash)
+        # return render_template("quote.html", isMarketOpen=MARKET_STATUS, stock_reco=stock_reco, current_cash=current_cash)
+        return render_template("quote.html", isMarketOpen=MARKET_STATUS, current_cash=current_cash)
 
 
 @fin_app.route("/buy", methods=["POST"])
