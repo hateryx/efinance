@@ -45,18 +45,11 @@ def lookup(symbol):
 
     # Contact API
     try:
-        # api_key = os.getenv("API_KEY")
-        api_key = "WQ5NQPVZ7RWZB7PF"
-        # url = f"https://cloud.iexapis.com/stable/stock/{urllib.parse.quote_plus(symbol)}/quote?token={api_key}"
-        url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={urllib.parse.quote_plus(symbol)}&apikey={api_key}"
+        api_key = os.getenv("API_KEY")
+        url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={api_key}"
         response = requests.get(url)
-        response.raise_for_status()
         data = response.json()
-    except requests.RequestException:
-        return None
-
-    # Parse response
-    try:
+        response.raise_for_status()
         quote = data["Global Quote"]
         lookup_data = {
             # "name": quote["companyName"],
@@ -66,7 +59,7 @@ def lookup(symbol):
             # "marketCap": quote["marketCap"],
         }
         return lookup_data
-    except (KeyError, TypeError, ValueError):
+    except requests.RequestException:
         return None
 
 
